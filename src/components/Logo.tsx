@@ -17,7 +17,7 @@ function Logo({ style = '', size = 'md' }: LogoProps) {
         alt="Delta logo"
         className={`${sizeClasses[size]} text-primary`}
         />
-      <span className={`${size === 'lg' ? 'text-3xl' : size === 'md' ? 'text-xl' : 'text-lg'}`}>
+      <span className={`font-bold ${size === 'lg' ? 'text-3xl' : size === 'md' ? 'text-xl' : 'text-lg'}`}>
         delta
       </span>
     </div>
