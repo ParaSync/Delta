@@ -30,41 +30,42 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast({
-        title: "Missing fields",
-        description: "Please fill in both email and password",
-        variant: "destructive",
+        title: 'Missing fields',
+        description: 'Please fill in both email and password',
+        variant: 'destructive',
       });
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const success = await login(email, password);
-      
+
       if (success) {
         toast({
-          title: "Welcome back!",
-          description: "Successfully logged in to Neuron Delta",
+          title: 'Welcome back!',
+          description: `Logged in as ${email}`,
         });
       } else {
         toast({
-          title: "Login failed",
-          description: "Invalid email or password. Try admin@neurondelta.com / admin123",
-          variant: "destructive",
+          title: 'Login failed',
+          description: 'Invalid email or password. Please try again.',
+          variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
       });
+      console.error(error);
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -82,7 +83,7 @@ export default function Login() {
             </CardDescription>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -95,9 +96,10 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSubmitting}
                 className="h-11"
+                autoComplete="email"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -108,13 +110,14 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
                 className="h-11"
+                autoComplete="current-password"
               />
             </div>
-            
+
             <div className="pt-4">
-              <Button 
-                type="submit" 
-                className="w-full h-11" 
+              <Button
+                type="submit"
+                className="w-full h-11"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -127,24 +130,16 @@ export default function Login() {
                 )}
               </Button>
             </div>
-            
+
             <div className="text-center pt-4">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 Forgot your password?
               </button>
             </div>
           </form>
-          
-          <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">Demo accounts:</p>
-            <div className="text-xs space-y-1">
-              <p><strong>Admin:</strong> admin@neurondelta.com / admin123</p>
-              <p><strong>Employee:</strong> john@neurondelta.com / employee123</p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
