@@ -14,6 +14,7 @@ import { FormBuilder } from "./pages/FormBuilder";
 import Responses from "./pages/Responses";
 import Users from "./pages/Users";
 import NotFoundPage from "./pages/NotFoundPage";
+import SignUp from "./pages/SignUp";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +27,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
-            
+            <Route path="/signup" element={<SignUp />} />
             {/* Protected routes with layout */}
             <Route path="/dashboard" element={
               <MainLayout>

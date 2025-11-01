@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, login, isLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -138,6 +139,21 @@ export default function Login() {
               >
                 Forgot your password?
               </button>
+            </div>
+
+            <div className="mt-6 p-4 bg-muted rounded-lg">
+              <div className="flex justify-center text-md space-y-1 ">
+                <p>
+                  Not yet registered?{' '}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/signup')}
+                    className="text-primary font-semibold hover:underline"
+                  >
+                    Sign up now!
+                  </button>
+                </p>
+              </div>
             </div>
           </form>
         </CardContent>
