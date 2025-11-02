@@ -65,7 +65,6 @@ export default function Login() {
       }
     };
 
-
     try {
       const signup = await createUser(email, password);
 
