@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/auth-context';
+import { useNavigate } from 'react-router-dom';
 
 const mockForms = [
   { 
@@ -73,6 +74,7 @@ export default function Forms() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const navigate = useNavigate();
 
   const filteredForms = mockForms.filter(form => {
     const matchesSearch = form.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,7 +104,7 @@ export default function Forms() {
           <h1 className="text-3xl font-bold">Forms</h1>
           <p className="text-muted-foreground">Create and manage your data collection forms</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => navigate('/forms/new')}>
           <Plus className="h-4 w-4" />
           Create New Form
         </Button>
