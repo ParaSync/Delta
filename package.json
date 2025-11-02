@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "bun test && bunx playwright test",
-    "prepare": "husky"
+    "prepare": "bunx husky"
   },
   "dependencies": {
     "lucide-react": "^0.548.0",
