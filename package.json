@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "bun test && bunx playwright test",
+    "test": "API_SERVER_PATH=`realpath ../DeltaAPI` ./scripts/runTests.sh",
+    "test:playwright": "bunx playwright test",
     "prepare": "bunx husky"
   },
   "dependencies": {
