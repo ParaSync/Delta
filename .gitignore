@@ -23,6 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+test-results/*
+
 # Environment and Credentials
 .env
 firebase-client-config.json
