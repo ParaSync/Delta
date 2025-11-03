@@ -14,7 +14,7 @@ jobs:
         repository: ParaSync/DeltaAPI
         token: ${{ secrets.GITHUB_TOKEN }}
         path: DeltaAPI
-        branch: develop
+        ref: develop
     # - uses: actions/setup-node@v4
     #   with:
     #     node-version: lts/*
