@@ -18,6 +18,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
       API_CLONE_GITHUB_TOKEN : ${{ secrets.API_CLONE_GITHUB_TOKEN }}
+      DELTA_API_SERVER: DeltaAPI 
     steps:
     - uses: actions/checkout@v4
     - name: Checkout API server 
@@ -38,7 +39,7 @@ jobs:
     - name: Install Playwright Browsers
       run: bunx playwright install --with-deps
     - name: Run tests
-      run: DELTA_API_SERVER=DeltaAPI ./scripts/runTests.sh 
+      run: ./scripts/runTests.sh 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
