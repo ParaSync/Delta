@@ -6,13 +6,25 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      FIREBASE_CLIENT_CONFIG: ${{ secrets.FIREBASE_CLIENT_CONFIG }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+      API_CLONE_GITHUB_TOKEN : ${{ secrets.API_CLONE_GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v4
     - name: Checkout API server 
       uses: actions/checkout@v4
       with:
         repository: ParaSync/DeltaAPI
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.API_CLONE_GITHUB_TOKEN }}
         path: DeltaAPI
         ref: develop
     # - uses: actions/setup-node@v4
