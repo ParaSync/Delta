@@ -30,3 +30,8 @@ dist-ssr
 /playwright/.cache/
 /playwright/.auth/
 .eslintcache
+
+# Environment and Credentials
+.env
+firebase-client-config.json
+neuron-delta-firebase-adminsdk-fbsvc-e748a310fb.json
