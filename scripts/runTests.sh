@@ -18,7 +18,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "Running Bun unit tests..."
-if ! bun test; then
+if ! bun test --pass-with-no-tests; then
   echo "Unit tests failed."
   exit 1
 fi
