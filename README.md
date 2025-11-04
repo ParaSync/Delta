@@ -28,7 +28,7 @@ API_SERVER_PATH=/path/to/delta-api ./scripts/runTests.sh
 If you are on Windows, run the API server separately, and run the preview server using:
 
 ```sh
-bun run preview
+bun run dev
 ```
 
 To run the tests on Windows:
