@@ -43,7 +43,7 @@ test("incorrect password should not be logged in", async ({ page }) => {
 });
 
 test("shows toast error when fields are empty", async ({ page }) => {
-  await page.goto("/login");
+  await page.goto("http://localhost:4173/login");
 
   await page.getByRole("button", { name: /sign in/i }).click();
 
