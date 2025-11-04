@@ -9,6 +9,7 @@ import FormRenderer from '@components/form-builder/FormRenderer';
 import { createNode, findNodeById, updateNodeById, removeNodeById, duplicateNode } from '../utils/formBuilder';
 import { generateId } from '../utils/formBuilder';
 import type { FormSchema, FormBuilderState, BuilderAction } from '../types/formBuilder';
+import { toast } from '../hooks/use-toast';
 
 const initialSchema: FormSchema = {
   title: 'Untitled Form',
@@ -229,6 +230,16 @@ function FormBuilder() {
     dispatch({ type: 'TOGGLE_PREVIEW' });
   };
 
+  const handleSave = () => {
+    // Mock save functionality
+    console.log('Saving form:', state.schema);
+    toast({
+      title: 'Form saved successfully!',
+      description: 'Your form has been saved.',
+      type: 'success'
+    });
+  };
+
   const selectedNode = state.selectedNodeId 
     ? findNodeById(state.schema.pages[0].elements, state.selectedNodeId) || undefined
     : undefined;
@@ -285,7 +296,10 @@ function FormBuilder() {
               {state.isPreview ? 'Back to Builder' : 'Preview'}
             </button>
             
-            <button className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
+            <button 
+              onClick={handleSave}
+              className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+            >
               <Save className="h-4 w-4" />
               Save
             </button>

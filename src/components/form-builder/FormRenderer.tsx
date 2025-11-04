@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import type { Node } from '../../types/formBuilder';
 import { toReactString } from '../../utils/formBuilder';
+import { toast } from '../../hooks/use-toast';
 
 type FormRendererProps = {
   nodes: Node[];
@@ -17,7 +18,6 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
   const [values, setValues] = useState<FormValues>({});
   const [tableData, setTableData] = useState<TableData>({});
   const [errors, setErrors] = useState<ValidationErrors>({});
-  const [submitted, setSubmitted] = useState(false);
 
   // Filter nodes to only show those visible in preview
   const visibleNodes = nodes.filter(node => node.props.visibleInPreview !== false);
@@ -67,16 +67,23 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
 
     // Simple validation - just log for now
     setErrors({});
-    setSubmitted(true);
     console.log('Form submitted:', allData);
-    alert('Form submitted successfully! Check console for data.');
+    toast({
+      title: 'Form submitted successfully!',
+      description: 'Check console for form data.',
+      type: 'success'
+    });
   };
 
   const handleReset = () => {
     setValues({});
     setTableData({});
     setErrors({});
-    setSubmitted(false);
+    toast({
+      title: 'Form reset',
+      description: 'All fields have been cleared.',
+      type: 'info'
+    });
   };
 
   const renderNode = (node: Node): React.ReactNode => {
