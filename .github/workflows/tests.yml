@@ -38,6 +38,8 @@ jobs:
       run: bun i && (cd DeltaAPI && bun i)
     - name: Install Playwright Browsers
       run: bunx playwright install --with-deps
+    - name: Setup Firebase config
+      run: echo '${{ secrets.FIREBASE_CLIENT_CONFIG }}' > DeltaAPI/firebase-client-config.json
     - name: Run tests
       run: ./scripts/runTests.sh 
     - uses: actions/upload-artifact@v4
