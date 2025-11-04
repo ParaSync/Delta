@@ -26,7 +26,7 @@ fi
 echo "Starting servers for Playwright tests..."
 
 # Start frontend preview
-bun run preview &
+bun run dev &
 PREVIEW_PID=$!
 echo "Preview server started (PID: $PREVIEW_PID)"
 
