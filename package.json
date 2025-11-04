@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test": "API_SERVER_PATH=`realpath ../DeltaAPI` ./scripts/runTests.sh",
     "test:playwright": "bunx playwright test",
+    "test:playwright:ui": "bunx playwright test --ui",
     "prepare": "bunx husky"
   },
   "dependencies": {

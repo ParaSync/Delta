@@ -22,3 +22,22 @@ test("nonexistent email should not log in", async ({ page }) => {
   // Expects page to have a heading with the name of Installation.
   await expect(page.getByText("Login failed").nth(0)).toBeVisible();
 });
+
+test("incorrect password should not be logged in", async ({ page }) => {
+  await page.goto("http://localhost:4173");
+
+  const email = page.getByRole("textbox", { name: "Email address" });
+  await email.waitFor({ state: "visible" });
+  await email.fill("neuron_delta_user@gmail.com");
+
+  const password = page.getByPlaceholder("Enter your password");
+  await password.waitFor({ state: "visible" });
+  await password.fill("whyisarchcraftsohard");
+
+  const signInButton = page.getByRole("button", { name: "Sign in" });
+  await signInButton.waitFor({ state: "visible" });
+  await signInButton.click();
+
+  const failedError = page.getByText("Invalid email or password").nth(0);
+  await expect(failedError).toBeVisible();
+});
