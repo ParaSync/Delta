@@ -41,3 +41,14 @@ test("incorrect password should not be logged in", async ({ page }) => {
   const failedError = page.getByText("Invalid email or password").nth(0);
   await expect(failedError).toBeVisible();
 });
+
+test("shows toast error when fields are empty", async ({ page }) => {
+  await page.goto("/login");
+
+  await page.getByRole("button", { name: /sign in/i }).click();
+
+  const toastMessage = page.locator(
+    'div:text("Please fill in both email and password")',
+  );
+  await expect(toastMessage).toBeVisible({ timeout: 5000 });
+});
