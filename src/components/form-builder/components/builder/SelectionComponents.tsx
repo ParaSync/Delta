@@ -13,19 +13,20 @@ export function SelectField({ node }: BaseFieldProps) {
 
   return (
     <div className="space-y-2">
-      <label 
-        htmlFor={fieldId}
-        className="text-sm font-medium block"
-      >
+      <label htmlFor={fieldId} className="text-sm font-medium block">
         {labelText}
-        {Boolean(props.required) && <span className="text-red-600" aria-label="required">*</span>}
+        {Boolean(props.required) && (
+          <span className="text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
-      <select 
+      <select
         id={fieldId}
         aria-label={labelText}
         aria-required={Boolean(props.required)}
         data-testid="builder-select"
-        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white pointer-events-none" 
+        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white pointer-events-none"
         disabled
       >
         <option value="">Select an option...</option>
@@ -47,14 +48,15 @@ export function MultiselectField({ node }: BaseFieldProps) {
 
   return (
     <div className="space-y-2">
-      <label 
-        id={groupId}
-        className="text-sm font-medium block"
-      >
+      <label id={groupId} className="text-sm font-medium block">
         {labelText}
-        {Boolean(props.required) && <span className="text-red-600" aria-label="required">*</span>}
+        {Boolean(props.required) && (
+          <span className="text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
-      <div 
+      <div
         role="group"
         aria-labelledby={groupId}
         aria-required={Boolean(props.required)}
@@ -63,18 +65,20 @@ export function MultiselectField({ node }: BaseFieldProps) {
       >
         {options.map((opt, i) => {
           const optionId = `${node.id}-option-${i}`;
-          
+
           return (
             <div key={i} className="flex items-center gap-2">
-              <input 
+              <input
                 id={optionId}
-                type="checkbox" 
+                type="checkbox"
                 aria-checked="false"
                 data-testid={`builder-multiselect-option-${opt.value}`}
-                className="rounded border-gray-300 pointer-events-none" 
-                disabled 
+                className="rounded border-gray-300 pointer-events-none"
+                disabled
               />
-              <label htmlFor={optionId} className="text-sm">{opt.label}</label>
+              <label htmlFor={optionId} className="text-sm">
+                {opt.label}
+              </label>
             </div>
           );
         })}
@@ -91,14 +95,15 @@ export function RadioField({ node }: BaseFieldProps) {
 
   return (
     <div className="space-y-2">
-      <label 
-        id={groupId}
-        className="text-sm font-medium block"
-      >
+      <label id={groupId} className="text-sm font-medium block">
         {labelText}
-        {Boolean(props.required) && <span className="text-red-600" aria-label="required">*</span>}
+        {Boolean(props.required) && (
+          <span className="text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
-      <div 
+      <div
         role="radiogroup"
         aria-labelledby={groupId}
         aria-required={Boolean(props.required)}
@@ -107,20 +112,22 @@ export function RadioField({ node }: BaseFieldProps) {
       >
         {options.map((opt, i) => {
           const optionId = `${node.id}-option-${i}`;
-          
+
           return (
             <div key={i} className="flex items-center gap-2">
-              <input 
+              <input
                 id={optionId}
-                type="radio" 
-                name={node.id} 
+                type="radio"
+                name={node.id}
                 value={opt.value}
                 aria-checked="false"
                 data-testid={`builder-radio-option-${opt.value}`}
-                className="pointer-events-none" 
-                disabled 
+                className="pointer-events-none"
+                disabled
               />
-              <label htmlFor={optionId} className="text-sm">{opt.label}</label>
+              <label htmlFor={optionId} className="text-sm">
+                {opt.label}
+              </label>
             </div>
           );
         })}
@@ -136,16 +143,18 @@ export function CheckboxField({ node }: BaseFieldProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <input 
+      <input
         id={fieldId}
         type="checkbox"
         aria-checked="false"
         aria-label={labelText}
         data-testid="builder-checkbox"
-        className="rounded border-gray-300 pointer-events-none" 
-        disabled 
+        className="rounded border-gray-300 pointer-events-none"
+        disabled
       />
-      <label htmlFor={fieldId} className="text-sm font-medium">{labelText}</label>
+      <label htmlFor={fieldId} className="text-sm font-medium">
+        {labelText}
+      </label>
     </div>
   );
 }

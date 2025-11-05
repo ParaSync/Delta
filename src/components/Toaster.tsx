@@ -42,46 +42,52 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
         toast.type === 'success'
           ? 'bg-green-50 border-green-200'
           : toast.type === 'error'
-          ? 'bg-red-50 border-red-200'
-          : 'bg-blue-50 border-blue-200'
+            ? 'bg-red-50 border-red-200'
+            : 'bg-blue-50 border-blue-200'
       }`}
     >
       <div className="flex items-start gap-3 p-4">
-        {toast.type === 'success' && <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />}
+        {toast.type === 'success' && (
+          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+        )}
         {toast.type === 'error' && <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />}
         {toast.type === 'info' && <Info className="h-5 w-5 text-blue-600 flex-shrink-0" />}
-        
+
         <div className="flex-1 min-w-0">
-          <p className={`font-semibold text-sm ${
-            toast.type === 'success'
-              ? 'text-green-900'
-              : toast.type === 'error'
-              ? 'text-red-900'
-              : 'text-blue-900'
-          }`}>
+          <p
+            className={`font-semibold text-sm ${
+              toast.type === 'success'
+                ? 'text-green-900'
+                : toast.type === 'error'
+                  ? 'text-red-900'
+                  : 'text-blue-900'
+            }`}
+          >
             {toast.title}
           </p>
           {toast.description && (
-            <p className={`text-sm mt-1 ${
-              toast.type === 'success'
-                ? 'text-green-700'
-                : toast.type === 'error'
-                ? 'text-red-700'
-                : 'text-blue-700'
-            }`}>
+            <p
+              className={`text-sm mt-1 ${
+                toast.type === 'success'
+                  ? 'text-green-700'
+                  : toast.type === 'error'
+                    ? 'text-red-700'
+                    : 'text-blue-700'
+              }`}
+            >
               {toast.description}
             </p>
           )}
         </div>
-        
+
         <button
           onClick={handleDismiss}
           className={`flex-shrink-0 rounded-md p-1 hover:bg-black/5 transition-colors ${
             toast.type === 'success'
               ? 'text-green-600'
               : toast.type === 'error'
-              ? 'text-red-600'
-              : 'text-blue-600'
+                ? 'text-red-600'
+                : 'text-blue-600'
           }`}
         >
           <X className="h-4 w-4" />
@@ -95,8 +101,8 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
             toast.type === 'success'
               ? 'bg-green-500'
               : toast.type === 'error'
-              ? 'bg-red-500'
-              : 'bg-blue-500'
+                ? 'bg-red-500'
+                : 'bg-blue-500'
           }`}
           style={{ width: `${progress}%` }}
         />
@@ -116,4 +122,3 @@ export function Toaster() {
     </div>
   );
 }
-

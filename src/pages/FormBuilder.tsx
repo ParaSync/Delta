@@ -2,11 +2,17 @@ import { useReducer, useCallback, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ArrowLeft, Eye, Save, Upload } from 'lucide-react';
-import ComponentPalette from '@components/form-builder/ComponentPalette';
-import FormCanvas from '@components/form-builder/FormCanvas';
-import PropertiesPanel from '@components/form-builder/PropertiesPanel';
-import FormRenderer from '@components/form-builder/FormRenderer';
-import { createNode, findNodeById, updateNodeById, removeNodeById, duplicateNode } from '../utils/formBuilder';
+import ComponentPalette from '@/components/form-builder/ComponentPalette';
+import FormCanvas from '@/components/form-builder/FormCanvas';
+import PropertiesPanel from '@/components/form-builder/PropertiesPanel';
+import FormRenderer from '@/components/form-builder/FormRenderer';
+import {
+  createNode,
+  findNodeById,
+  updateNodeById,
+  removeNodeById,
+  duplicateNode,
+} from '../utils/formBuilder';
 import { generateId } from '../utils/formBuilder';
 import type { FormSchema, FormBuilderState, BuilderAction } from '../types/formBuilder';
 import { toast } from '../hooks/use-toast';
@@ -42,7 +48,11 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
 
     case 'ADD_NODE': {
       const elements = [...state.schema.pages[0].elements];
-      if (typeof action.index === 'number' && action.index >= 0 && action.index <= elements.length) {
+      if (
+        typeof action.index === 'number' &&
+        action.index >= 0 &&
+        action.index <= elements.length
+      ) {
         elements.splice(action.index, 0, action.node);
       } else {
         elements.push(action.node);
@@ -63,7 +73,11 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
     }
 
     case 'UPDATE_NODE': {
-      const updatedElements = updateNodeById(state.schema.pages[0].elements, action.nodeId, action.props);
+      const updatedElements = updateNodeById(
+        state.schema.pages[0].elements,
+        action.nodeId,
+        action.props
+      );
       return {
         ...state,
         schema: {
@@ -100,9 +114,9 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
       if (nodeToClone) {
         const duplicated = duplicateNode(nodeToClone);
         const elements = [...state.schema.pages[0].elements];
-        const originalIndex = elements.findIndex(item => item.id === action.nodeId);
+        const originalIndex = elements.findIndex((item) => item.id === action.nodeId);
         elements.splice(originalIndex + 1, 0, duplicated);
-        
+
         return {
           ...state,
           schema: {
@@ -122,13 +136,13 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
 
     case 'MOVE_NODE': {
       const elements = [...state.schema.pages[0].elements];
-      const dragIndex = elements.findIndex(el => el.id === action.nodeId);
-      
+      const dragIndex = elements.findIndex((el) => el.id === action.nodeId);
+
       if (dragIndex === -1) return state;
-      
+
       const [movedElement] = elements.splice(dragIndex, 1);
       elements.splice(action.index, 0, movedElement);
-      
+
       return {
         ...state,
         schema: {
@@ -146,12 +160,12 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
     case 'MOVE_NODE_BY_INDEX': {
       const elements = [...state.schema.pages[0].elements];
       const { dragIndex, hoverIndex } = action;
-      
+
       if (dragIndex === hoverIndex || dragIndex < 0 || hoverIndex < 0) return state;
-      
+
       const [movedElement] = elements.splice(dragIndex, 1);
       elements.splice(hoverIndex, 0, movedElement);
-      
+
       return {
         ...state,
         schema: {
@@ -187,13 +201,18 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
 function FormBuilder() {
   const [state, dispatch] = useReducer(formBuilderReducer, initialState);
 
-  const handleDropComponent = useCallback((componentType: string, defaultProps: Record<string, unknown>) => {
-    const newNode = createNode(componentType as never, defaultProps);
-    const elements = state.schema.pages[0].elements;
-    const selectedIdx = state.selectedNodeId ? elements.findIndex((el) => el.id === state.selectedNodeId) : -1;
-    const insertIndex = selectedIdx >= 0 ? selectedIdx + 1 : undefined;
-    dispatch({ type: 'ADD_NODE', node: newNode, index: insertIndex });
-  }, [state.schema.pages, state.selectedNodeId]);
+  const handleDropComponent = useCallback(
+    (componentType: string, defaultProps: Record<string, unknown>) => {
+      const newNode = createNode(componentType as never, defaultProps);
+      const elements = state.schema.pages[0].elements;
+      const selectedIdx = state.selectedNodeId
+        ? elements.findIndex((el) => el.id === state.selectedNodeId)
+        : -1;
+      const insertIndex = selectedIdx >= 0 ? selectedIdx + 1 : undefined;
+      dispatch({ type: 'ADD_NODE', node: newNode, index: insertIndex });
+    },
+    [state.schema.pages, state.selectedNodeId]
+  );
 
   const handleUpdateNode = useCallback((nodeId: string, props: Record<string, unknown>) => {
     dispatch({ type: 'UPDATE_NODE', nodeId, props });
@@ -203,20 +222,23 @@ function FormBuilder() {
     dispatch({ type: 'SELECT_NODE', nodeId });
   }, []);
 
-  const handleDeleteNode = useCallback((nodeId: string) => {
-    // find the index of the node to delete and compute the previous node id
-    const elements = state.schema.pages[0].elements;
-    const idx = elements.findIndex((el) => el.id === nodeId);
-    const prevId = idx > 0 ? elements[idx - 1].id : undefined;
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      // find the index of the node to delete and compute the previous node id
+      const elements = state.schema.pages[0].elements;
+      const idx = elements.findIndex((el) => el.id === nodeId);
+      const prevId = idx > 0 ? elements[idx - 1].id : undefined;
 
-    // delete the node
-    dispatch({ type: 'DELETE_NODE', nodeId });
+      // delete the node
+      dispatch({ type: 'DELETE_NODE', nodeId });
 
-    // if a previous node exists, select it
-    if (prevId) {
-      dispatch({ type: 'SELECT_NODE', nodeId: prevId });
-    }
-  }, [state.schema.pages]);
+      // if a previous node exists, select it
+      if (prevId) {
+        dispatch({ type: 'SELECT_NODE', nodeId: prevId });
+      }
+    },
+    [state.schema.pages]
+  );
 
   const handleDuplicateNode = useCallback((nodeId: string) => {
     dispatch({ type: 'DUPLICATE_NODE', nodeId });
@@ -236,11 +258,11 @@ function FormBuilder() {
     toast({
       title: 'Form saved successfully!',
       description: 'Your form has been saved.',
-      type: 'success'
+      type: 'success',
     });
   };
 
-  const selectedNode = state.selectedNodeId 
+  const selectedNode = state.selectedNodeId
     ? findNodeById(state.schema.pages[0].elements, state.selectedNodeId) || undefined
     : undefined;
 
@@ -251,7 +273,11 @@ function FormBuilder() {
       if (e.key === 'Delete' && state.selectedNodeId && !state.isPreview) {
         // Don't delete if user is typing in an input field
         const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+        if (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT'
+        ) {
           return;
         }
         e.preventDefault();
@@ -273,7 +299,7 @@ function FormBuilder() {
               <ArrowLeft className="h-4 w-4" />
               Back
             </button>
-            
+
             <input
               value={state.schema.title}
               onChange={(e) => dispatch({ type: 'SET_TITLE', title: e.target.value })}
@@ -288,22 +314,22 @@ function FormBuilder() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={togglePreview}
               className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md ${state.isPreview ? 'bg-primary text-white' : 'border border-gray-300 hover:bg-gray-50'}`}
             >
               <Eye className="h-4 w-4" />
               {state.isPreview ? 'Back to Builder' : 'Preview'}
             </button>
-            
-            <button 
+
+            <button
               onClick={handleSave}
               className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <Save className="h-4 w-4" />
               Save
             </button>
-            
+
             <button className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90">
               <Upload className="h-4 w-4" />
               Publish
@@ -315,15 +341,12 @@ function FormBuilder() {
         <div className="flex-1 flex overflow-hidden">
           {state.isPreview ? (
             <div className="flex-1 overflow-y-auto">
-              <FormRenderer 
-                nodes={state.schema.pages[0].elements} 
-                title={state.schema.title} 
-              />
+              <FormRenderer nodes={state.schema.pages[0].elements} title={state.schema.title} />
             </div>
           ) : (
             <>
               <ComponentPalette onAddComponent={handleDropComponent} />
-              
+
               <FormCanvas
                 nodes={state.schema.pages[0].elements}
                 selectedNodeId={state.selectedNodeId}
@@ -334,11 +357,8 @@ function FormBuilder() {
                 onUpdateNode={handleUpdateNode}
                 onMoveElement={handleMoveElement}
               />
-              
-              <PropertiesPanel
-                selectedNode={selectedNode}
-                onUpdateNode={handleUpdateNode}
-              />
+
+              <PropertiesPanel selectedNode={selectedNode} onUpdateNode={handleUpdateNode} />
             </>
           )}
         </div>
@@ -348,4 +368,3 @@ function FormBuilder() {
 }
 
 export default FormBuilder;
-

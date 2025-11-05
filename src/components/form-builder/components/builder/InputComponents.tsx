@@ -11,19 +11,25 @@ interface InputFieldConfig {
   defaultPlaceholder?: string;
 }
 
-function BaseInputField({ node, type, defaultLabel, defaultPlaceholder = '' }: BaseFieldProps & InputFieldConfig) {
+function BaseInputField({
+  node,
+  type,
+  defaultLabel,
+  defaultPlaceholder = '',
+}: BaseFieldProps & InputFieldConfig) {
   const { props } = node;
   const fieldId = `builder-field-${node.id}`;
   const labelText = toReactString(props.label || defaultLabel);
-  
+
   return (
     <div className="space-y-2">
-      <label 
-        htmlFor={fieldId}
-        className="text-sm font-medium block"
-      >
+      <label htmlFor={fieldId} className="text-sm font-medium block">
         {labelText}
-        {Boolean(props.required) && <span className="text-red-600" aria-label="required">*</span>}
+        {Boolean(props.required) && (
+          <span className="text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
       <input
         id={fieldId}
@@ -63,15 +69,16 @@ export function TextareaField({ node }: BaseFieldProps) {
   const { props } = node;
   const fieldId = `builder-field-${node.id}`;
   const labelText = toReactString(props.label || 'Textarea');
-  
+
   return (
     <div className="space-y-2">
-      <label 
-        htmlFor={fieldId}
-        className="text-sm font-medium block"
-      >
+      <label htmlFor={fieldId} className="text-sm font-medium block">
         {labelText}
-        {Boolean(props.required) && <span className="text-red-600" aria-label="required">*</span>}
+        {Boolean(props.required) && (
+          <span className="text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
       <textarea
         id={fieldId}
@@ -93,15 +100,16 @@ export function FileField({ node }: BaseFieldProps) {
   const fieldId = `builder-field-${node.id}`;
   const labelText = toReactString(props.label || 'File Upload');
   const isMultiple = Boolean(props.multiple);
-  
+
   return (
     <div className="space-y-2">
-      <label 
-        htmlFor={fieldId}
-        className="text-sm font-medium block"
-      >
+      <label htmlFor={fieldId} className="text-sm font-medium block">
         {labelText}
-        {Boolean(props.required) && <span className="text-red-600" aria-label="required">*</span>}
+        {Boolean(props.required) && (
+          <span className="text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
       <input
         id={fieldId}

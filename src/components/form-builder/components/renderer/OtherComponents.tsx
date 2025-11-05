@@ -6,7 +6,14 @@ import type { InteractiveFieldProps, TableColumn, TableFieldProps } from '../typ
 import { toReactString } from '../../../../utils/formBuilder';
 import { Plus, Trash2 } from 'lucide-react';
 
-export function TableField({ node, value, error, onAddRow, onRemoveRow, onUpdateCell }: TableFieldProps) {
+export function TableField({
+  node,
+  value,
+  error,
+  onAddRow,
+  onRemoveRow,
+  onUpdateCell,
+}: TableFieldProps) {
   const { props } = node;
   const columns = (props.columns as TableColumn[]) || [];
   const rows = Array.isArray(value) ? (value as Array<Record<string, unknown>>) : [];
@@ -18,17 +25,20 @@ export function TableField({ node, value, error, onAddRow, onRemoveRow, onUpdate
   return (
     <div className="mb-6">
       {labelText && (
-        <label 
-          id={tableId}
-          className="block font-medium mb-2"
-        >
+        <label id={tableId} className="block font-medium mb-2">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
-      
-      <div className={`border rounded-lg overflow-hidden ${error ? 'border-red-500' : 'border-gray-300'}`}>
-        <table 
+
+      <div
+        className={`border rounded-lg overflow-hidden ${error ? 'border-red-500' : 'border-gray-300'}`}
+      >
+        <table
           className="w-full"
           role="table"
           aria-labelledby={labelText ? tableId : undefined}
@@ -40,15 +50,13 @@ export function TableField({ node, value, error, onAddRow, onRemoveRow, onUpdate
           <thead className="bg-gray-100">
             <tr role="row">
               {columns.map((col, i) => (
-                <th 
-                  key={i} 
-                  role="columnheader"
-                  className="px-4 py-2 text-left text-sm font-medium"
-                >
+                <th key={i} role="columnheader" className="px-4 py-2 text-left text-sm font-medium">
                   {col.label}
                 </th>
               ))}
-              <th role="columnheader" className="px-4 py-2 w-12">Actions</th>
+              <th role="columnheader" className="px-4 py-2 w-12">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -56,7 +64,7 @@ export function TableField({ node, value, error, onAddRow, onRemoveRow, onUpdate
               <tr key={rowIndex} role="row" className="border-t">
                 {columns.map((col, colIndex) => {
                   const cellId = `${node.id}-cell-${rowIndex}-${col.key}`;
-                  
+
                   return (
                     <td key={colIndex} role="cell" className="px-4 py-2">
                       <input
@@ -87,7 +95,7 @@ export function TableField({ node, value, error, onAddRow, onRemoveRow, onUpdate
             ))}
           </tbody>
         </table>
-        
+
         <div className="p-3 border-t bg-gray-50">
           <button
             type="button"
@@ -104,12 +112,7 @@ export function TableField({ node, value, error, onAddRow, onRemoveRow, onUpdate
         </div>
       </div>
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -133,13 +136,15 @@ export function ImageField({ node }: InteractiveFieldProps) {
           style={{ objectFit: String(props.objectFit || 'cover') as never }}
         />
       ) : (
-        <div 
+        <div
           className="h-48 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-300"
           role="img"
           aria-label="No image set"
           data-testid="image-placeholder"
         >
-          <span className="text-gray-400" aria-hidden="true">No image set</span>
+          <span className="text-gray-400" aria-hidden="true">
+            No image set
+          </span>
         </div>
       )}
     </div>
@@ -156,7 +161,9 @@ export function SubmitButton({ node }: InteractiveFieldProps) {
       aria-label={`Submit form: ${label}`}
       data-testid="submit-button"
       className={`px-8 py-2 rounded-xl font-bold text-white mb-4 ${
-        props.variant === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' : 'bg-primary hover:bg-primary/90'
+        props.variant === 'secondary'
+          ? 'bg-gray-600 hover:bg-gray-700'
+          : 'bg-primary hover:bg-primary/90'
       }`}
     >
       {label}
@@ -183,7 +190,7 @@ export function ResetButton({ node, onClick }: InteractiveFieldProps) {
 
 export function DividerField() {
   return (
-    <hr 
+    <hr
       className="border-gray-300 my-4"
       role="separator"
       aria-orientation="horizontal"
@@ -194,13 +201,15 @@ export function DividerField() {
 
 export function PageBreakField() {
   return (
-    <div 
+    <div
       className="border-t-4 border-dashed border-gray-400 py-4 my-4 text-center"
       role="separator"
       aria-label="Page break"
       data-testid="page-break"
     >
-      <span className="text-sm font-medium text-gray-500" aria-hidden="true">— Page Break —</span>
+      <span className="text-sm font-medium text-gray-500" aria-hidden="true">
+        — Page Break —
+      </span>
     </div>
   );
 }

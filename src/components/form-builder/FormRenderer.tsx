@@ -6,7 +6,7 @@ import type { Node } from '../../types/formBuilder';
 type FormRendererProps = {
   nodes: Node[];
   title: string;
-}
+};
 
 type FormValues = Record<string, unknown>;
 type TableData = Record<string, Array<Record<string, unknown>>>;
@@ -18,7 +18,7 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
   const [errors, setErrors] = useState<ValidationErrors>({});
 
   // Filter nodes to only show those visible in preview
-  const visibleNodes = nodes.filter(node => node.props.visibleInPreview !== false);
+  const visibleNodes = nodes.filter((node) => node.props.visibleInPreview !== false);
 
   const updateValue = (fieldKey: string, value: unknown) => {
     setValues((prev) => ({ ...prev, [fieldKey]: value }));
@@ -56,7 +56,7 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Merge table data into values
     const allData = { ...values };
     Object.keys(tableData).forEach((key) => {
@@ -69,7 +69,7 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
     toast({
       title: 'Form submitted successfully!',
       description: 'Check console for form data.',
-      type: 'success'
+      type: 'success',
     });
   };
 
@@ -80,7 +80,7 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
     toast({
       title: 'Form reset',
       description: 'All fields have been cleared.',
-      type: 'info'
+      type: 'info',
     });
   };
 
@@ -104,7 +104,7 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
           onChange={(val: unknown) => updateValue(fieldKey, val)}
           onAddRow={() => addTableRow(fieldKey)}
           onRemoveRow={(rowIndex: number) => removeTableRow(fieldKey, rowIndex)}
-          onUpdateCell={(rowIndex: number, colKey: string, value: unknown) => 
+          onUpdateCell={(rowIndex: number, colKey: string, value: unknown) =>
             updateTableCell(fieldKey, rowIndex, colKey, value)
           }
         />
@@ -119,7 +119,9 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
     // Special handling for reset button - needs click handler
     if (node.type === 'reset') {
       const ResetComponent = FieldComponent as unknown as React.FC<Record<string, unknown>>;
-      return <ResetComponent node={node} value={currentValue} error={error} onClick={handleReset} />;
+      return (
+        <ResetComponent node={node} value={currentValue} error={error} onClick={handleReset} />
+      );
     }
 
     // Standard interactive field with value/error/onChange
@@ -134,29 +136,25 @@ function FormRenderer({ nodes, title }: FormRendererProps) {
   };
 
   return (
-    <div 
+    <div
       className="max-w-4xl mx-auto p-8"
       role="main"
       aria-label="Form preview"
       data-testid="form-renderer"
     >
       <div className="bg-white rounded-lg shadow-md p-8">
-        <h1 
-          className="text-3xl font-bold mb-6"
-          role="heading"
-          aria-level={1}
-        >
+        <h1 className="text-3xl font-bold mb-6" role="heading" aria-level={1}>
           {title}
         </h1>
-        
-        <form 
+
+        <form
           onSubmit={handleSubmit}
           aria-label={`${title} form`}
           data-testid="form-renderer-form"
           className="space-y-6"
         >
           {visibleNodes.map((node) => (
-            <div 
+            <div
               key={node.id}
               role="group"
               aria-label={`${node.type} field`}

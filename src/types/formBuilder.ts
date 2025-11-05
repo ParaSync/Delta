@@ -12,18 +12,33 @@ export type Page = {
 
 export type NodeType =
   // Labels
-  | 'h1' | 'h2' | 'h3' | 'paragraph' | 'help'
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'paragraph'
+  | 'help'
   // Inputs
-  | 'text' | 'textarea' | 'number' | 'date' | 'time' | 'datetime'
-  | 'select' | 'multiselect' | 'radio' | 'checkbox' | 'file'
+  | 'text'
+  | 'textarea'
+  | 'number'
+  | 'date'
+  | 'time'
+  | 'datetime'
+  | 'select'
+  | 'multiselect'
+  | 'radio'
+  | 'checkbox'
+  | 'file'
   // Tables
   | 'table'
   // Layout
-  | 'divider' | 'pagebreak'
+  | 'divider'
+  | 'pagebreak'
   // Images
   | 'image'
   // Actions
-  | 'submit' | 'reset';
+  | 'submit'
+  | 'reset';
 
 export type Node = {
   id: string;

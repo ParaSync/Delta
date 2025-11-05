@@ -15,12 +15,13 @@ export function SelectField({ node, value, error, onChange }: InteractiveFieldPr
   return (
     <div className="mb-4">
       {labelText && (
-        <label 
-          htmlFor={fieldId}
-          className="block font-medium mb-1"
-        >
+        <label htmlFor={fieldId} className="block font-medium mb-1">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
       <select
@@ -45,12 +46,7 @@ export function SelectField({ node, value, error, onChange }: InteractiveFieldPr
         ))}
       </select>
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -76,12 +72,13 @@ export function MultiselectField({ node, value, error, onChange }: InteractiveFi
   return (
     <div className="mb-4">
       {labelText && (
-        <label 
-          id={groupId}
-          className="block font-medium mb-2"
-        >
+        <label id={groupId} className="block font-medium mb-2">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
       <div
@@ -99,7 +96,7 @@ export function MultiselectField({ node, value, error, onChange }: InteractiveFi
         {options.map((opt) => {
           const isChecked = currentValues.includes(opt.value);
           const fieldId = `${node.id}-${opt.value}`;
-          
+
           return (
             <div key={opt.value} className="flex items-center gap-2">
               <input
@@ -119,12 +116,7 @@ export function MultiselectField({ node, value, error, onChange }: InteractiveFi
         })}
       </div>
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -142,15 +134,16 @@ export function RadioField({ node, value, error, onChange }: InteractiveFieldPro
   return (
     <div className="mb-4">
       {labelText && (
-        <label 
-          id={groupId}
-          className="block font-medium mb-2"
-        >
+        <label id={groupId} className="block font-medium mb-2">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
-      <div 
+      <div
         role="radiogroup"
         aria-labelledby={labelText ? groupId : undefined}
         aria-label={!labelText ? 'radio group' : undefined}
@@ -162,9 +155,13 @@ export function RadioField({ node, value, error, onChange }: InteractiveFieldPro
       >
         {options.map((opt) => {
           const fieldId = `${node.id}-${opt.value}`;
-          
+
           return (
-            <label key={opt.value} htmlFor={fieldId} className="flex items-center gap-2 cursor-pointer">
+            <label
+              key={opt.value}
+              htmlFor={fieldId}
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <input
                 type="radio"
                 id={fieldId}
@@ -183,12 +180,7 @@ export function RadioField({ node, value, error, onChange }: InteractiveFieldPro
         })}
       </div>
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -204,10 +196,7 @@ export function CheckboxField({ node, value, onChange }: InteractiveFieldProps) 
 
   return (
     <div className="mb-4">
-      <label 
-        htmlFor={fieldId}
-        className="flex items-center gap-2 cursor-pointer"
-      >
+      <label htmlFor={fieldId} className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
           id={fieldId}

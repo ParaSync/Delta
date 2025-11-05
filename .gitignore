@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+.eslintcache
+
+# Environment and Credentials
+.env
+firebase-client-config.json
+neuron-delta-firebase-adminsdk-fbsvc-e748a310fb.json

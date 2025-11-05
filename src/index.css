@@ -1,3 +1,134 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Neuron Delta Design System - Following official branding guidelines */
+
+@layer base {
+  :root {
+    /* Delta Brand Colors */
+    --primary: 167 71% 37%; /* #17A092 Primary Green */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+
+    --secondary: 184 22% 34%; /* #46736F Dark Teal */
+    --secondary-foreground: 0 0% 100%; /* White text on secondary */
+
+    --accent: 350 53% 36%; /* #8B2D3C Accent Red */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
+
+    --muted: 0 0% 94%; /* #EFEFEF Light Gray */
+    --muted-foreground: 0 0% 45%;
+
+    --background: 0 0% 100%; /* #FFFFFF White */
+    --foreground: 0 0% 9%; /* Dark text */
+
+    /* UI Colors */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+
+    --destructive: 350 53% 36%; /* Using accent red for destructive */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 94%;
+    --ring: 167 71% 37%;
+
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 167 71% 37%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 167 71% 37%;
+
+    --radius: 8px;
+  }
+
+  .dark {
+    /* Delta Brand Colors - Dark Mode */
+    --primary: 167 71% 37%; /* Keep primary green */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 184 22% 34%; /* Keep dark teal */
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 350 53% 36%; /* Keep accent red */
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%; /* Darker muted */
+    --muted-foreground: 0 0% 65%;
+
+    --background: 0 0% 9%; /* Dark background */
+    --foreground: 0 0% 98%; /* Light text */
+
+    /* UI Colors - Dark Mode */
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 98%;
+
+    --destructive: 350 53% 36%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 167 71% 37%;
+
+    --sidebar-background: 0 0% 9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 167 71% 37%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 167 71% 37%;
+  }
+}
+
+/* Additional Delta Design System Utilities */
+.delta-card-shadow {
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.delta-card-shadow-lg {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sf;
+    font-feature-settings:
+      'cv01', 'cv02', 'cv03', 'cv04', 'cv05', 'cv06', 'cv07', 'cv08', 'cv09', 'cv10', 'cv11';
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}

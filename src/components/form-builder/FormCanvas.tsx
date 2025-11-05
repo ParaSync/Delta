@@ -11,17 +11,17 @@ type FormCanvasProps = {
   onDuplicateNode: (nodeId: string) => void;
   onUpdateNode: (nodeId: string, props: Record<string, unknown>) => void;
   onMoveElement: (dragIndex: number, hoverIndex: number) => void;
-}
+};
 
-function FormCanvas({ 
-  nodes, 
-  selectedNodeId, 
-  onSelectNode, 
+function FormCanvas({
+  nodes,
+  selectedNodeId,
+  onSelectNode,
   onDropComponent,
   onDeleteNode,
   onDuplicateNode,
   onUpdateNode,
-  onMoveElement
+  onMoveElement,
 }: FormCanvasProps) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'COMPONENT',
@@ -42,7 +42,9 @@ function FormCanvas({
   if (nodes.length === 0) {
     return (
       <div
-        ref={(el) => { drop(el); }}
+        ref={(el) => {
+          drop(el);
+        }}
         onClick={handleCanvasClick}
         role="main"
         aria-label="Form canvas - empty"
@@ -51,16 +53,12 @@ function FormCanvas({
         className={`flex-1 p-8 pb-24 bg-gray-50 h-screen overflow-y-auto ${isOver ? 'bg-primary/5' : ''}`}
       >
         <div className="flex flex-col items-center justify-center min-h-full text-center">
-          <div 
+          <div
             className="p-8 border-2 border-dashed border-gray-300 rounded-lg bg-white/50"
             role="status"
             aria-live="polite"
           >
-            <h3 
-              className="text-lg font-medium text-gray-600 mb-2"
-              role="heading"
-              aria-level={3}
-            >
+            <h3 className="text-lg font-medium text-gray-600 mb-2" role="heading" aria-level={3}>
               Start Building Your Form
             </h3>
             <p className="text-sm text-gray-500" role="note">
@@ -74,7 +72,9 @@ function FormCanvas({
 
   return (
     <div
-      ref={(el) => { drop(el); }}
+      ref={(el) => {
+        drop(el);
+      }}
       onClick={handleCanvasClick}
       role="main"
       aria-label={`Form canvas with ${nodes.length} component${nodes.length !== 1 ? 's' : ''}`}
@@ -82,11 +82,7 @@ function FormCanvas({
       data-testid="form-canvas"
       className={`flex-1 p-8 pb-24 bg-gray-50 h-screen overflow-y-auto ${isOver ? 'bg-primary/5' : ''}`}
     >
-      <div 
-        className="max-w-4xl mx-auto space-y-4"
-        role="list"
-        aria-label="Form components"
-      >
+      <div className="max-w-4xl mx-auto space-y-4" role="list" aria-label="Form components">
         {nodes.map((node, index) => (
           <FormElement
             key={node.id}

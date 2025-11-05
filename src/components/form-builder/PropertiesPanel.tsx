@@ -4,26 +4,19 @@ import type { Node } from '../../types/formBuilder';
 type PropertiesPanelProps = {
   selectedNode?: Node;
   onUpdateNode: (nodeId: string, props: Record<string, unknown>) => void;
-}
+};
 
 function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
   if (!selectedNode) {
     return (
-      <div 
+      <div
         className="w-80 bg-white border-l border-gray-200 p-4"
         role="complementary"
         aria-label="Properties panel"
         data-testid="properties-panel-empty"
       >
-        <div 
-          className="text-center text-gray-500 py-8"
-          role="status"
-        >
-          <h3 
-            className="font-medium mb-2"
-            role="heading"
-            aria-level={3}
-          >
+        <div className="text-center text-gray-500 py-8" role="status">
+          <h3 className="font-medium mb-2" role="heading" aria-level={3}>
             No Element Selected
           </h3>
           <p className="text-sm">Select an element on the canvas to edit its properties.</p>
@@ -37,52 +30,70 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
   };
 
   const addOption = () => {
-    const currentOptions = (selectedNode.props.options as Array<{ value: string; label: string }>) || [];
-    const newOption = { value: `option${currentOptions.length + 1}`, label: `Option ${currentOptions.length + 1}` };
+    const currentOptions =
+      (selectedNode.props.options as Array<{ value: string; label: string }>) || [];
+    const newOption = {
+      value: `option${currentOptions.length + 1}`,
+      label: `Option ${currentOptions.length + 1}`,
+    };
     updateProp('options', [...currentOptions, newOption]);
   };
 
   const removeOption = (index: number) => {
-    const currentOptions = (selectedNode.props.options as Array<{ value: string; label: string }>) || [];
-    updateProp('options', currentOptions.filter((_, i) => i !== index));
+    const currentOptions =
+      (selectedNode.props.options as Array<{ value: string; label: string }>) || [];
+    updateProp(
+      'options',
+      currentOptions.filter((_, i) => i !== index)
+    );
   };
 
   const updateOption = (index: number, field: 'value' | 'label', value: string) => {
-    const currentOptions = [...((selectedNode.props.options as Array<{ value: string; label: string }>) || [])];
+    const currentOptions = [
+      ...((selectedNode.props.options as Array<{ value: string; label: string }>) || []),
+    ];
     currentOptions[index] = { ...currentOptions[index], [field]: value };
     updateProp('options', currentOptions);
   };
 
   const addColumn = () => {
-    const currentColumns = (selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) || [];
-    const newColumn = { key: `col${currentColumns.length + 1}`, label: `Column ${currentColumns.length + 1}`, type: 'text' };
+    const currentColumns =
+      (selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) || [];
+    const newColumn = {
+      key: `col${currentColumns.length + 1}`,
+      label: `Column ${currentColumns.length + 1}`,
+      type: 'text',
+    };
     updateProp('columns', [...currentColumns, newColumn]);
   };
 
   const removeColumn = (index: number) => {
-    const currentColumns = (selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) || [];
-    updateProp('columns', currentColumns.filter((_, i) => i !== index));
+    const currentColumns =
+      (selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) || [];
+    updateProp(
+      'columns',
+      currentColumns.filter((_, i) => i !== index)
+    );
   };
 
   const updateColumn = (index: number, field: 'key' | 'label' | 'type', value: string) => {
-    const currentColumns = [...((selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) || [])];
+    const currentColumns = [
+      ...((selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) ||
+        []),
+    ];
     currentColumns[index] = { ...currentColumns[index], [field]: value };
     updateProp('columns', currentColumns);
   };
 
   return (
-    <div 
+    <div
       className="w-80 bg-white border-l border-gray-200 p-4 overflow-y-auto"
       role="complementary"
       aria-label="Properties panel"
       data-testid="properties-panel"
     >
       <div className="mb-4">
-        <h2 
-          className="text-lg font-bold mb-1"
-          role="heading"
-          aria-level={2}
-        >
+        <h2 className="text-lg font-bold mb-1" role="heading" aria-level={2}>
           Properties
         </h2>
         <p className="text-xs text-gray-500">
@@ -90,15 +101,11 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         </p>
       </div>
 
-      <div 
-        className="space-y-3"
-        role="form"
-        aria-label={`${selectedNode.type} properties`}
-      >
+      <div className="space-y-3" role="form" aria-label={`${selectedNode.type} properties`}>
         {/* Label/Text property */}
         {(selectedNode.props.label !== undefined || selectedNode.props.text !== undefined) && (
           <div>
-            <label 
+            <label
               htmlFor={`prop-label-${selectedNode.id}`}
               className="block text-xs font-medium mb-1"
             >
@@ -119,7 +126,12 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
                 id={`prop-label-${selectedNode.id}`}
                 type="text"
                 value={String(selectedNode.props.label || selectedNode.props.text || '')}
-                onChange={(e) => updateProp(selectedNode.props.label !== undefined ? 'label' : 'text', e.target.value)}
+                onChange={(e) =>
+                  updateProp(
+                    selectedNode.props.label !== undefined ? 'label' : 'text',
+                    e.target.value
+                  )
+                }
                 aria-label={selectedNode.props.label !== undefined ? 'Field label' : 'Text content'}
                 data-testid="property-label"
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
@@ -131,7 +143,7 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         {/* Label property (for most components) */}
         {selectedNode.props.label !== undefined && (
           <div>
-            <label 
+            <label
               htmlFor={`prop-placeholder-${selectedNode.id}`}
               className="block text-xs font-medium mb-1"
             >
@@ -173,7 +185,9 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
                 <input
                   type="number"
                   value={selectedNode.props.min ? String(selectedNode.props.min) : ''}
-                  onChange={(e) => updateProp('min', e.target.value ? parseFloat(e.target.value) : undefined)}
+                  onChange={(e) =>
+                    updateProp('min', e.target.value ? parseFloat(e.target.value) : undefined)
+                  }
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
                 />
               </div>
@@ -182,7 +196,9 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
                 <input
                   type="number"
                   value={selectedNode.props.max ? String(selectedNode.props.max) : ''}
-                  onChange={(e) => updateProp('max', e.target.value ? parseFloat(e.target.value) : undefined)}
+                  onChange={(e) =>
+                    updateProp('max', e.target.value ? parseFloat(e.target.value) : undefined)
+                  }
                   className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
                 />
               </div>
@@ -233,7 +249,7 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
             <div>
               <label className="block text-xs font-medium mb-1">Image Source</label>
               <select
-                value={selectedNode.props.imageSourceType as string || 'url'}
+                value={(selectedNode.props.imageSourceType as string) || 'url'}
                 onChange={(e) => {
                   const sourceType = e.target.value;
                   updateProp('imageSourceType', sourceType);
@@ -326,51 +342,49 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         {/* Options editor (select, multiselect, radio) */}
         {['select', 'multiselect', 'radio'].includes(selectedNode.type) && (
           <div role="group" aria-label="Options editor">
-            <label 
+            <label
               id={`options-label-${selectedNode.id}`}
               className="block text-sm font-medium mb-2"
             >
               Options
             </label>
-            <div 
+            <div
               className="space-y-2 max-h-48 overflow-y-auto pr-1"
               role="list"
               aria-labelledby={`options-label-${selectedNode.id}`}
             >
-              {((selectedNode.props.options as Array<{ value: string; label: string }>) || []).map((option, index) => (
-                <div 
-                  key={index} 
-                  className="flex gap-1 items-center"
-                  role="listitem"
-                >
-                  <input
-                    type="text"
-                    placeholder="Value"
-                    value={option.value}
-                    onChange={(e) => updateOption(index, 'value', e.target.value)}
-                    aria-label={`Option ${index + 1} value`}
-                    data-testid={`option-value-${index}`}
-                    className="w-24 px-2 py-1 border border-gray-300 rounded text-xs"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Label"
-                    value={option.label}
-                    onChange={(e) => updateOption(index, 'label', e.target.value)}
-                    aria-label={`Option ${index + 1} label`}
-                    data-testid={`option-label-${index}`}
-                    className="flex-1 min-w-0 px-2 py-1 border border-gray-300 rounded text-xs"
-                  />
-                  <button
-                    onClick={() => removeOption(index)}
-                    aria-label={`Remove option ${index + 1}`}
-                    data-testid={`remove-option-${index}`}
-                    className="flex-shrink-0 p-1 text-red-600 hover:bg-red-50 rounded"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  </button>
-                </div>
-              ))}
+              {((selectedNode.props.options as Array<{ value: string; label: string }>) || []).map(
+                (option, index) => (
+                  <div key={index} className="flex gap-1 items-center" role="listitem">
+                    <input
+                      type="text"
+                      placeholder="Value"
+                      value={option.value}
+                      onChange={(e) => updateOption(index, 'value', e.target.value)}
+                      aria-label={`Option ${index + 1} value`}
+                      data-testid={`option-value-${index}`}
+                      className="w-24 px-2 py-1 border border-gray-300 rounded text-xs"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Label"
+                      value={option.label}
+                      onChange={(e) => updateOption(index, 'label', e.target.value)}
+                      aria-label={`Option ${index + 1} label`}
+                      data-testid={`option-label-${index}`}
+                      className="flex-1 min-w-0 px-2 py-1 border border-gray-300 rounded text-xs"
+                    />
+                    <button
+                      onClick={() => removeOption(index)}
+                      aria-label={`Remove option ${index + 1}`}
+                      data-testid={`remove-option-${index}`}
+                      className="flex-shrink-0 p-1 text-red-600 hover:bg-red-50 rounded"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                  </div>
+                )
+              )}
             </div>
             <button
               onClick={addOption}
@@ -387,20 +401,26 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         {/* Table columns editor */}
         {selectedNode.type === 'table' && (
           <div role="group" aria-label="Table columns editor">
-            <label 
+            <label
               id={`columns-label-${selectedNode.id}`}
               className="block text-sm font-medium mb-2"
             >
               Columns
             </label>
-            <div 
+            <div
               className="space-y-2 max-h-48 overflow-y-auto pr-1"
               role="list"
               aria-labelledby={`columns-label-${selectedNode.id}`}
             >
-              {((selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) || []).map((column, index) => (
-                <div 
-                  key={index} 
+              {(
+                (selectedNode.props.columns as Array<{
+                  key: string;
+                  label: string;
+                  type: string;
+                }>) || []
+              ).map((column, index) => (
+                <div
+                  key={index}
                   className="space-y-1.5 p-2 border border-gray-200 rounded"
                   role="listitem"
                 >
@@ -454,9 +474,9 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
               <Plus className="h-3.5 w-3.5" aria-hidden="true" />
               Add Column
             </button>
-            
+
             <div className="mt-3">
-              <label 
+              <label
                 htmlFor={`prop-maxrows-${selectedNode.id}`}
                 className="block text-xs font-medium mb-1"
               >
@@ -474,10 +494,7 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
                 data-testid="property-maxrows"
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
               />
-              <p 
-                id={`maxrows-help-${selectedNode.id}`}
-                className="text-xs text-gray-400 mt-0.5"
-              >
+              <p id={`maxrows-help-${selectedNode.id}`} className="text-xs text-gray-400 mt-0.5">
                 Maximum number of rows users can add
               </p>
             </div>
@@ -485,12 +502,22 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         )}
 
         {/* Required toggle */}
-        {['text', 'textarea', 'number', 'date', 'time', 'datetime', 'select', 'multiselect', 'radio', 'checkbox', 'file', 'table'].includes(selectedNode.type) && (
+        {[
+          'text',
+          'textarea',
+          'number',
+          'date',
+          'time',
+          'datetime',
+          'select',
+          'multiselect',
+          'radio',
+          'checkbox',
+          'file',
+          'table',
+        ].includes(selectedNode.type) && (
           <div className="flex items-center justify-between pt-2 border-t">
-            <label 
-              htmlFor={`prop-required-${selectedNode.id}`}
-              className="text-xs font-medium"
-            >
+            <label htmlFor={`prop-required-${selectedNode.id}`} className="text-xs font-medium">
               Required
             </label>
             <input
@@ -506,12 +533,11 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         )}
 
         {/* Read-only toggle */}
-        {['text', 'textarea', 'number', 'date', 'time', 'datetime', 'select'].includes(selectedNode.type) && (
+        {['text', 'textarea', 'number', 'date', 'time', 'datetime', 'select'].includes(
+          selectedNode.type
+        ) && (
           <div className="flex items-center justify-between">
-            <label 
-              htmlFor={`prop-readonly-${selectedNode.id}`}
-              className="text-xs font-medium"
-            >
+            <label htmlFor={`prop-readonly-${selectedNode.id}`} className="text-xs font-medium">
               Read-only
             </label>
             <input

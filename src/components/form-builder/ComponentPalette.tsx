@@ -8,20 +8,26 @@ import type { ComponentItem } from '../../types/formBuilder';
 type DraggableComponentProps = {
   item: ComponentItem;
   onAddComponent: (componentType: string, defaultProps: Record<string, unknown>) => void;
-}
+};
 
 function DraggableComponent({ item, onAddComponent }: DraggableComponentProps) {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'COMPONENT',
-    item: { componentType: item.type, defaultProps: item.defaultProps },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: 'COMPONENT',
+      item: { componentType: item.type, defaultProps: item.defaultProps },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
     }),
-  }), [item.type, item.defaultProps]);
+    [item.type, item.defaultProps]
+  );
 
   // Lucide-react exports complex types that don't match Record indexing
   // We need to cast through unknown to access icons by string key
-  const iconLookup = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
+  const iconLookup = Icons as unknown as Record<
+    string,
+    React.ComponentType<{ className?: string }>
+  >;
   const IconComponent = iconLookup[item.icon] || Icons.Square;
 
   const handleClick = () => {
@@ -30,7 +36,9 @@ function DraggableComponent({ item, onAddComponent }: DraggableComponentProps) {
 
   return (
     <div
-      ref={(el) => { drag(el); }}
+      ref={(el) => {
+        drag(el);
+      }}
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -56,11 +64,16 @@ type ComponentCategoryProps = {
   isExpanded: boolean;
   onToggle: () => void;
   onAddComponent: (componentType: string, defaultProps: Record<string, unknown>) => void;
-}
+};
 
-function ComponentCategory({ category, isExpanded, onToggle, onAddComponent }: ComponentCategoryProps) {
+function ComponentCategory({
+  category,
+  isExpanded,
+  onToggle,
+  onAddComponent,
+}: ComponentCategoryProps) {
   const categoryId = `category-${category.name.toLowerCase().replace(/\s+/g, '-')}`;
-  
+
   return (
     <div>
       <button
@@ -80,20 +93,16 @@ function ComponentCategory({ category, isExpanded, onToggle, onAddComponent }: C
           {category.name}
         </span>
       </button>
-      
+
       {isExpanded && (
-        <div 
+        <div
           id={categoryId}
           role="group"
           aria-label={`${category.name} components`}
           className="mt-2 mb-4 space-y-2 pl-2"
         >
           {category.items.map((item) => (
-            <DraggableComponent 
-              key={item.type} 
-              item={item} 
-              onAddComponent={onAddComponent}
-            />
+            <DraggableComponent key={item.type} item={item} onAddComponent={onAddComponent} />
           ))}
         </div>
       )}
@@ -103,7 +112,7 @@ function ComponentCategory({ category, isExpanded, onToggle, onAddComponent }: C
 
 type ComponentPaletteProps = {
   onAddComponent: (componentType: string, defaultProps: Record<string, unknown>) => void;
-}
+};
 
 function ComponentPalette({ onAddComponent }: ComponentPaletteProps) {
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
@@ -116,32 +125,28 @@ function ComponentPalette({ onAddComponent }: ComponentPaletteProps) {
   });
 
   const toggleCategory = (categoryName: string) => {
-    setExpandedCategories(prev => ({
+    setExpandedCategories((prev) => ({
       ...prev,
       [categoryName]: !prev[categoryName],
     }));
   };
 
   return (
-    <div 
+    <div
       className="w-80 bg-white border-r border-gray-200 p-4 overflow-y-auto"
       role="complementary"
       aria-label="Component palette"
       data-testid="component-palette"
     >
       <div className="mb-6">
-        <h2 
-          className="text-lg font-bold mb-2"
-          role="heading"
-          aria-level={2}
-        >
+        <h2 className="text-lg font-bold mb-2" role="heading" aria-level={2}>
           Components
         </h2>
         <p className="text-sm text-gray-500" role="note">
           Click or drag components to add them to your form.
         </p>
       </div>
-      
+
       <div className="space-y-1" role="list">
         {COMPONENT_CATEGORIES.map((category) => (
           <ComponentCategory

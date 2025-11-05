@@ -13,55 +13,70 @@ type FormElementProps = {
   onUpdateNode: (nodeId: string, props: Record<string, unknown>) => void;
   index: number;
   moveElement: (dragIndex: number, hoverIndex: number) => void;
-}
+};
 
-function FormElement({ node, isSelected, onSelect, onDelete, onDuplicate, onUpdateNode, index, moveElement }: FormElementProps) {
+function FormElement({
+  node,
+  isSelected,
+  onSelect,
+  onDelete,
+  onDuplicate,
+  onUpdateNode,
+  index,
+  moveElement,
+}: FormElementProps) {
   const elementRef = useRef<HTMLDivElement>(null);
-  
-  const [{ isDragging }, drag, preview] = useDrag(() => ({
-    type: 'ELEMENT',
-    item: { id: node.id, index },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }), [node.id, index]);
 
-  const [, drop] = useDrop(() => ({
-    accept: 'ELEMENT',
-    hover: (item: { id: string; index: number }, monitor) => {
-      if (!elementRef.current) return;
-      if (item.index === index) return;
-      
-      const dragIndex = item.index;
-      const hoverIndex = index;
-      
-      // Get bounding rectangle of the hovered element
-      const hoverBoundingRect = elementRef.current.getBoundingClientRect();
-      
-      // Get vertical middle point
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      
-      // Get cursor position
-      const clientOffset = monitor.getClientOffset();
-      if (!clientOffset) return;
-      
-      // Get pixels to the top
-      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-      
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move when the cursor is above 50%
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return;
-      }
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return;
-      }
-      
-      moveElement(dragIndex, hoverIndex);
-      item.index = hoverIndex;
-    },
-  }), [index, moveElement]);
+  const [{ isDragging }, drag, preview] = useDrag(
+    () => ({
+      type: 'ELEMENT',
+      item: { id: node.id, index },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
+    }),
+    [node.id, index]
+  );
+
+  const [, drop] = useDrop(
+    () => ({
+      accept: 'ELEMENT',
+      hover: (item: { id: string; index: number }, monitor) => {
+        if (!elementRef.current) return;
+        if (item.index === index) return;
+
+        const dragIndex = item.index;
+        const hoverIndex = index;
+
+        // Get bounding rectangle of the hovered element
+        const hoverBoundingRect = elementRef.current.getBoundingClientRect();
+
+        // Get vertical middle point
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+        // Get cursor position
+        const clientOffset = monitor.getClientOffset();
+        if (!clientOffset) return;
+
+        // Get pixels to the top
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+
+        // Only perform the move when the mouse has crossed half of the items height
+        // When dragging downwards, only move when the cursor is below 50%
+        // When dragging upwards, only move when the cursor is above 50%
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+          return;
+        }
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+          return;
+        }
+
+        moveElement(dragIndex, hoverIndex);
+        item.index = hoverIndex;
+      },
+    }),
+    [index, moveElement]
+  );
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -113,15 +128,17 @@ function FormElement({ node, isSelected, onSelect, onDelete, onDuplicate, onUpda
     >
       {/* Toolbar */}
       {isSelected && (
-        <div 
+        <div
           className="absolute -top-2 left-0 right-0 flex justify-between items-center bg-primary text-white rounded-md px-2 py-1 text-xs z-10"
           role="toolbar"
           aria-label="Component actions"
           data-testid="form-element-toolbar"
         >
           <div className="flex items-center gap-1">
-            <div 
-              ref={(el) => { drag(el); }}
+            <div
+              ref={(el) => {
+                drag(el);
+              }}
               role="button"
               aria-label="Drag to reorder"
               tabIndex={0}
@@ -132,7 +149,7 @@ function FormElement({ node, isSelected, onSelect, onDelete, onDuplicate, onUpda
             </div>
             <span className="font-medium">{node.type}</span>
             {node.props.visibleInPreview === false && (
-              <span 
+              <span
                 className="ml-2 px-1.5 py-0.5 bg-yellow-500 text-white rounded text-[10px] font-semibold"
                 role="status"
                 aria-label="Hidden from preview"
@@ -142,7 +159,7 @@ function FormElement({ node, isSelected, onSelect, onDelete, onDuplicate, onUpda
             )}
           </div>
           <div className="flex items-center gap-1">
-            <button 
+            <button
               onClick={handleDuplicate}
               aria-label="Duplicate component"
               data-testid="duplicate-button"
@@ -150,13 +167,19 @@ function FormElement({ node, isSelected, onSelect, onDelete, onDuplicate, onUpda
             >
               <Copy className="h-3 w-3" aria-hidden="true" />
             </button>
-            <button 
+            <button
               onClick={handleToggleVisibility}
-              aria-label={node.props.visibleInPreview === false ? 'Show in preview' : 'Hide from preview'}
+              aria-label={
+                node.props.visibleInPreview === false ? 'Show in preview' : 'Hide from preview'
+              }
               aria-pressed={node.props.visibleInPreview === false}
               data-testid="visibility-toggle"
               className={`hover:bg-primary/80 p-1 rounded ${node.props.visibleInPreview === false ? 'bg-primary/70' : ''}`}
-              title={node.props.visibleInPreview === false ? 'Hidden in preview - Click to show' : 'Visible in preview - Click to hide'}
+              title={
+                node.props.visibleInPreview === false
+                  ? 'Hidden in preview - Click to show'
+                  : 'Visible in preview - Click to hide'
+              }
             >
               {node.props.visibleInPreview === false ? (
                 <EyeOff className="h-3 w-3" aria-hidden="true" />
@@ -164,7 +187,7 @@ function FormElement({ node, isSelected, onSelect, onDelete, onDuplicate, onUpda
                 <Eye className="h-3 w-3" aria-hidden="true" />
               )}
             </button>
-            <button 
+            <button
               onClick={handleDelete}
               aria-label="Delete component"
               data-testid="delete-button"
@@ -175,7 +198,7 @@ function FormElement({ node, isSelected, onSelect, onDelete, onDuplicate, onUpda
           </div>
         </div>
       )}
-      
+
       {/* Render the field component from registry */}
       <FieldComponent node={node} />
     </div>

@@ -10,28 +10,29 @@ interface InputFieldConfig {
   placeholder?: string;
 }
 
-function BaseInputField({ 
-  node, 
-  value, 
-  error, 
-  onChange, 
-  type, 
-  placeholder = '' 
+function BaseInputField({
+  node,
+  value,
+  error,
+  onChange,
+  type,
+  placeholder = '',
 }: InteractiveFieldProps & InputFieldConfig) {
   const { props } = node;
   const labelText = props.label ? toReactString(props.label) : null;
   const fieldId = `field-${node.id}`;
   const errorId = `error-${node.id}`;
-  
+
   return (
     <div className="mb-4">
       {labelText && (
-        <label 
-          htmlFor={fieldId}
-          className="block font-medium mb-1"
-        >
+        <label htmlFor={fieldId} className="block font-medium mb-1">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
       <input
@@ -52,12 +53,7 @@ function BaseInputField({
         }`}
       />
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -86,16 +82,17 @@ export function NumberField({ node, value, error, onChange }: InteractiveFieldPr
   const labelText = props.label ? toReactString(props.label) : null;
   const fieldId = `field-${node.id}`;
   const errorId = `error-${node.id}`;
-  
+
   return (
     <div className="mb-4">
       {labelText && (
-        <label 
-          htmlFor={fieldId}
-          className="block font-medium mb-1"
-        >
+        <label htmlFor={fieldId} className="block font-medium mb-1">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
       <input
@@ -121,12 +118,7 @@ export function NumberField({ node, value, error, onChange }: InteractiveFieldPr
         }`}
       />
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -139,16 +131,17 @@ export function TextareaField({ node, value, error, onChange }: InteractiveField
   const labelText = props.label ? toReactString(props.label) : null;
   const fieldId = `field-${node.id}`;
   const errorId = `error-${node.id}`;
-  
+
   return (
     <div className="mb-4">
       {labelText && (
-        <label 
-          htmlFor={fieldId}
-          className="block font-medium mb-1"
-        >
+        <label htmlFor={fieldId} className="block font-medium mb-1">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
       <textarea
@@ -170,12 +163,7 @@ export function TextareaField({ node, value, error, onChange }: InteractiveField
         }`}
       />
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -189,16 +177,17 @@ export function FileField({ node, error, onChange }: InteractiveFieldProps) {
   const isMultiple = Boolean(props.multiple);
   const fieldId = `field-${node.id}`;
   const errorId = `error-${node.id}`;
-  
+
   return (
     <div className="mb-4">
       {labelText && (
-        <label 
-          htmlFor={fieldId}
-          className="block font-medium mb-1"
-        >
+        <label htmlFor={fieldId} className="block font-medium mb-1">
           {labelText}
-          {Boolean(props.required) && <span className="text-red-600 ml-1" aria-label="required">*</span>}
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
         </label>
       )}
       <input
@@ -224,12 +213,7 @@ export function FileField({ node, error, onChange }: InteractiveFieldProps) {
         }`}
       />
       {error && (
-        <p 
-          id={errorId}
-          className="text-red-500 text-sm mt-1"
-          role="alert"
-          aria-live="polite"
-        >
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}
         </p>
       )}

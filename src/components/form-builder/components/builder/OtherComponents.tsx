@@ -13,15 +13,16 @@ export function TableField({ node }: BaseFieldProps) {
 
   return (
     <div className="space-y-2">
-      <label 
-        id={tableId}
-        className="text-sm font-medium block"
-      >
+      <label id={tableId} className="text-sm font-medium block">
         {labelText}
-        {Boolean(props.required) && <span className="text-red-600" aria-label="required">*</span>}
+        {Boolean(props.required) && (
+          <span className="text-red-600" aria-label="required">
+            *
+          </span>
+        )}
       </label>
       <div className="border border-gray-300 rounded-lg overflow-hidden">
-        <table 
+        <table
           className="w-full"
           role="table"
           aria-labelledby={tableId}
@@ -30,11 +31,7 @@ export function TableField({ node }: BaseFieldProps) {
           <thead className="bg-gray-100">
             <tr role="row">
               {columns.map((col, i) => (
-                <th 
-                  key={i} 
-                  role="columnheader"
-                  className="px-4 py-2 text-left text-sm font-medium"
-                >
+                <th key={i} role="columnheader" className="px-4 py-2 text-left text-sm font-medium">
                   {col.label}
                 </th>
               ))}
@@ -43,17 +40,13 @@ export function TableField({ node }: BaseFieldProps) {
           <tbody>
             <tr role="row">
               {columns.map((col, i) => (
-                <td 
-                  key={i} 
-                  role="cell"
-                  className="px-4 py-2 border-t"
-                >
-                  <input 
+                <td key={i} role="cell" className="px-4 py-2 border-t">
+                  <input
                     type="text"
                     aria-label={`${col.label} preview`}
                     data-testid={`builder-table-cell-${col.key}`}
-                    className="w-full border-0 bg-transparent pointer-events-none" 
-                    disabled 
+                    className="w-full border-0 bg-transparent pointer-events-none"
+                    disabled
                   />
                 </td>
               ))}
@@ -81,7 +74,7 @@ export function ImageField({ node }: BaseFieldProps) {
           style={{ objectFit: String(props.objectFit || 'cover') as never }}
         />
       ) : (
-        <div 
+        <div
           className="h-48 bg-gray-100 rounded-lg flex items-center justify-center"
           role="img"
           aria-label="Image placeholder"
@@ -119,7 +112,7 @@ export function ResetButton({ node }: BaseFieldProps) {
   const label = String(props.label || 'Reset');
 
   return (
-    <button 
+    <button
       type="button"
       aria-label={`Reset button: ${label}`}
       data-testid="builder-reset-button"
@@ -132,7 +125,7 @@ export function ResetButton({ node }: BaseFieldProps) {
 
 export function DividerField() {
   return (
-    <hr 
+    <hr
       className="border-gray-300"
       role="separator"
       aria-orientation="horizontal"
@@ -143,13 +136,15 @@ export function DividerField() {
 
 export function PageBreakField() {
   return (
-    <div 
+    <div
       className="border-t-4 border-dashed border-gray-400 py-2 text-center"
       role="separator"
       aria-label="Page break"
       data-testid="builder-page-break"
     >
-      <span className="text-sm font-medium text-gray-500" aria-hidden="true">— Page Break —</span>
+      <span className="text-sm font-medium text-gray-500" aria-hidden="true">
+        — Page Break —
+      </span>
     </div>
   );
 }

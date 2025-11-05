@@ -31,10 +31,20 @@ function dispatch(toasts: Toast[]) {
   });
 }
 
-export function toast({ title, description, type = 'info', duration = 3000 }: { title: string; description?: string; type?: ToastType; duration?: number }) {
+export function toast({
+  title,
+  description,
+  type = 'info',
+  duration = 3000,
+}: {
+  title: string;
+  description?: string;
+  type?: ToastType;
+  duration?: number;
+}) {
   const id = genId();
   const newToast: Toast = { id, title, description, type, createdAt: Date.now(), duration };
-  
+
   dispatch([...memoryState.toasts, newToast]);
 
   // Auto-dismiss after specified duration
@@ -68,4 +78,3 @@ export function useToast() {
     dismiss,
   };
 }
-
