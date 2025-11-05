@@ -3,7 +3,6 @@ import { test, expect } from "@playwright/test";
 test("logged out user is redirected to homepage", async ({ page }) => {
   await page.goto("http://localhost:4173/dashboard");
 
-  // `/` is the login page
   await page.waitForURL("**/login");
   await expect(page).toHaveURL(/\/login$/);
 });
@@ -51,4 +50,23 @@ test("shows toast error when fields are empty", async ({ page }) => {
     'div:text("Please fill in both email and password")',
   );
   await expect(toastMessage).toBeVisible({ timeout: 5000 });
+});
+
+test("redirect to dashboard on successful login", async ({ page }) => {
+  await page.goto("http://localhost:4173/login");
+
+  const email = page.getByRole("textbox", { name: "Email address" });
+  await email.waitFor({ state: "visible" });
+  await email.fill("neuron_delta_user@gmail.com");
+
+  const password = page.getByPlaceholder("Enter your password");
+  await password.waitFor({ state: "visible" });
+  await password.fill("testdummy");
+
+  const signInButton = page.getByRole("button", { name: "Sign in" });
+  await signInButton.waitFor({ state: "visible" });
+  await signInButton.click();
+
+  await page.waitForURL("**/dashboard");
+  await expect(page).toHaveURL(/\/dashboard$/);
 });
