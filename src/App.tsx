@@ -1,10 +1,12 @@
-import Login from "./pages/Login"
+import FormBuilder from "./pages/FormBuilder"
+import { Toaster } from "./components/Toaster"
 
 function App() {
 
   return (
     <>
-      <Login/>
+      <FormBuilder/>
+      <Toaster />
     </>
   )
 }

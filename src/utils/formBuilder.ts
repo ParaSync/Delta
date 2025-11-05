@@ -1,5 +1,3 @@
-// Form Builder Utilities for Delta
-
 import type { Node, NodeType, ComponentCategory } from '../types/formBuilder';
 
 // Generate unique IDs

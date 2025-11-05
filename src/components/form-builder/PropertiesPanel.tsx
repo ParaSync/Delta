@@ -1,4 +1,3 @@
-// Properties Panel - Complete implementation
 import { Plus, Trash2 } from 'lucide-react';
 import type { Node } from '../../types/formBuilder';
 
@@ -10,9 +9,23 @@ type PropertiesPanelProps = {
 function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
   if (!selectedNode) {
     return (
-      <div className="w-80 bg-white border-l border-gray-200 p-4">
-        <div className="text-center text-gray-500 py-8">
-          <h3 className="font-medium mb-2">No Element Selected</h3>
+      <div 
+        className="w-80 bg-white border-l border-gray-200 p-4"
+        role="complementary"
+        aria-label="Properties panel"
+        data-testid="properties-panel-empty"
+      >
+        <div 
+          className="text-center text-gray-500 py-8"
+          role="status"
+        >
+          <h3 
+            className="font-medium mb-2"
+            role="heading"
+            aria-level={3}
+          >
+            No Element Selected
+          </h3>
           <p className="text-sm">Select an element on the canvas to edit its properties.</p>
         </div>
       </div>
@@ -58,31 +71,57 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 p-4 overflow-y-auto">
+    <div 
+      className="w-80 bg-white border-l border-gray-200 p-4 overflow-y-auto"
+      role="complementary"
+      aria-label="Properties panel"
+      data-testid="properties-panel"
+    >
       <div className="mb-4">
-        <h2 className="text-lg font-bold mb-1">Properties</h2>
-        <p className="text-xs text-gray-500">Element: <span className="font-medium">{selectedNode.type}</span></p>
+        <h2 
+          className="text-lg font-bold mb-1"
+          role="heading"
+          aria-level={2}
+        >
+          Properties
+        </h2>
+        <p className="text-xs text-gray-500">
+          Element: <span className="font-medium">{selectedNode.type}</span>
+        </p>
       </div>
 
-      <div className="space-y-3">
+      <div 
+        className="space-y-3"
+        role="form"
+        aria-label={`${selectedNode.type} properties`}
+      >
         {/* Label/Text property */}
         {(selectedNode.props.label !== undefined || selectedNode.props.text !== undefined) && (
           <div>
-            <label className="block text-xs font-medium mb-1">
+            <label 
+              htmlFor={`prop-label-${selectedNode.id}`}
+              className="block text-xs font-medium mb-1"
+            >
               {selectedNode.props.label !== undefined ? 'Label' : 'Text'}
             </label>
             {selectedNode.type === 'paragraph' ? (
               <textarea
+                id={`prop-label-${selectedNode.id}`}
                 value={String(selectedNode.props.text || '')}
                 onChange={(e) => updateProp('text', e.target.value)}
+                aria-label="Paragraph text content"
+                data-testid="property-text"
                 className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md resize-none h-96"
                 placeholder="Enter paragraph text..."
               />
             ) : (
               <input
+                id={`prop-label-${selectedNode.id}`}
                 type="text"
                 value={String(selectedNode.props.label || selectedNode.props.text || '')}
                 onChange={(e) => updateProp(selectedNode.props.label !== undefined ? 'label' : 'text', e.target.value)}
+                aria-label={selectedNode.props.label !== undefined ? 'Field label' : 'Text content'}
+                data-testid="property-label"
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
               />
             )}
@@ -92,11 +131,19 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         {/* Label property (for most components) */}
         {selectedNode.props.label !== undefined && (
           <div>
-            <label className="block text-xs font-medium mb-1">Placeholder</label>
+            <label 
+              htmlFor={`prop-placeholder-${selectedNode.id}`}
+              className="block text-xs font-medium mb-1"
+            >
+              Placeholder
+            </label>
             <input
+              id={`prop-placeholder-${selectedNode.id}`}
               type="text"
               value={String(selectedNode.props.placeholder || '')}
               onChange={(e) => updateProp('placeholder', e.target.value)}
+              aria-label="Placeholder text"
+              data-testid="property-placeholder"
               className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
             />
           </div>
@@ -278,16 +325,31 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
 
         {/* Options editor (select, multiselect, radio) */}
         {['select', 'multiselect', 'radio'].includes(selectedNode.type) && (
-          <div>
-            <label className="block text-sm font-medium mb-2">Options</label>
-            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div role="group" aria-label="Options editor">
+            <label 
+              id={`options-label-${selectedNode.id}`}
+              className="block text-sm font-medium mb-2"
+            >
+              Options
+            </label>
+            <div 
+              className="space-y-2 max-h-48 overflow-y-auto pr-1"
+              role="list"
+              aria-labelledby={`options-label-${selectedNode.id}`}
+            >
               {((selectedNode.props.options as Array<{ value: string; label: string }>) || []).map((option, index) => (
-                <div key={index} className="flex gap-1 items-center">
+                <div 
+                  key={index} 
+                  className="flex gap-1 items-center"
+                  role="listitem"
+                >
                   <input
                     type="text"
                     placeholder="Value"
                     value={option.value}
                     onChange={(e) => updateOption(index, 'value', e.target.value)}
+                    aria-label={`Option ${index + 1} value`}
+                    data-testid={`option-value-${index}`}
                     className="w-24 px-2 py-1 border border-gray-300 rounded text-xs"
                   />
                   <input
@@ -295,22 +357,28 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
                     placeholder="Label"
                     value={option.label}
                     onChange={(e) => updateOption(index, 'label', e.target.value)}
+                    aria-label={`Option ${index + 1} label`}
+                    data-testid={`option-label-${index}`}
                     className="flex-1 min-w-0 px-2 py-1 border border-gray-300 rounded text-xs"
                   />
                   <button
                     onClick={() => removeOption(index)}
+                    aria-label={`Remove option ${index + 1}`}
+                    data-testid={`remove-option-${index}`}
                     className="flex-shrink-0 p-1 text-red-600 hover:bg-red-50 rounded"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
                 </div>
               ))}
             </div>
             <button
               onClick={addOption}
+              aria-label="Add new option"
+              data-testid="add-option"
               className="w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs border border-gray-300 rounded-md hover:bg-gray-50 mt-2"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
               Add Option
             </button>
           </div>
@@ -318,16 +386,31 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
 
         {/* Table columns editor */}
         {selectedNode.type === 'table' && (
-          <div>
-            <label className="block text-sm font-medium mb-2">Columns</label>
-            <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div role="group" aria-label="Table columns editor">
+            <label 
+              id={`columns-label-${selectedNode.id}`}
+              className="block text-sm font-medium mb-2"
+            >
+              Columns
+            </label>
+            <div 
+              className="space-y-2 max-h-48 overflow-y-auto pr-1"
+              role="list"
+              aria-labelledby={`columns-label-${selectedNode.id}`}
+            >
               {((selectedNode.props.columns as Array<{ key: string; label: string; type: string }>) || []).map((column, index) => (
-                <div key={index} className="space-y-1.5 p-2 border border-gray-200 rounded">
+                <div 
+                  key={index} 
+                  className="space-y-1.5 p-2 border border-gray-200 rounded"
+                  role="listitem"
+                >
                   <input
                     type="text"
                     placeholder="Key"
                     value={column.key}
                     onChange={(e) => updateColumn(index, 'key', e.target.value)}
+                    aria-label={`Column ${index + 1} key`}
+                    data-testid={`column-key-${index}`}
                     className="w-full min-w-0 px-2 py-1 border border-gray-300 rounded text-xs"
                   />
                   <input
@@ -335,12 +418,16 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
                     placeholder="Label"
                     value={column.label}
                     onChange={(e) => updateColumn(index, 'label', e.target.value)}
+                    aria-label={`Column ${index + 1} label`}
+                    data-testid={`column-label-${index}`}
                     className="w-full min-w-0 px-2 py-1 border border-gray-300 rounded text-xs"
                   />
                   <div className="flex gap-1 items-center">
                     <select
                       value={column.type}
                       onChange={(e) => updateColumn(index, 'type', e.target.value)}
+                      aria-label={`Column ${index + 1} type`}
+                      data-testid={`column-type-${index}`}
                       className="flex-1 min-w-0 px-2 py-1 border border-gray-300 rounded text-xs"
                     >
                       <option value="text">Text</option>
@@ -348,9 +435,11 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
                     </select>
                     <button
                       onClick={() => removeColumn(index)}
+                      aria-label={`Remove column ${index + 1}`}
+                      data-testid={`remove-column-${index}`}
                       className="flex-shrink-0 p-1 text-red-600 hover:bg-red-50 rounded"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -358,23 +447,39 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
             </div>
             <button
               onClick={addColumn}
+              aria-label="Add new column"
+              data-testid="add-column"
               className="w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs border border-gray-300 rounded-md hover:bg-gray-50 mt-2"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
               Add Column
             </button>
             
             <div className="mt-3">
-              <label className="block text-xs font-medium mb-1">Max Rows</label>
+              <label 
+                htmlFor={`prop-maxrows-${selectedNode.id}`}
+                className="block text-xs font-medium mb-1"
+              >
+                Max Rows
+              </label>
               <input
+                id={`prop-maxrows-${selectedNode.id}`}
                 type="number"
                 min="1"
                 max="100"
                 value={Number(selectedNode.props.maxRows) || 5}
                 onChange={(e) => updateProp('maxRows', parseInt(e.target.value) || 5)}
+                aria-label="Maximum rows"
+                aria-describedby={`maxrows-help-${selectedNode.id}`}
+                data-testid="property-maxrows"
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
               />
-              <p className="text-xs text-gray-400 mt-0.5">Maximum number of rows users can add</p>
+              <p 
+                id={`maxrows-help-${selectedNode.id}`}
+                className="text-xs text-gray-400 mt-0.5"
+              >
+                Maximum number of rows users can add
+              </p>
             </div>
           </div>
         )}
@@ -382,11 +487,19 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         {/* Required toggle */}
         {['text', 'textarea', 'number', 'date', 'time', 'datetime', 'select', 'multiselect', 'radio', 'checkbox', 'file', 'table'].includes(selectedNode.type) && (
           <div className="flex items-center justify-between pt-2 border-t">
-            <label className="text-xs font-medium">Required</label>
+            <label 
+              htmlFor={`prop-required-${selectedNode.id}`}
+              className="text-xs font-medium"
+            >
+              Required
+            </label>
             <input
+              id={`prop-required-${selectedNode.id}`}
               type="checkbox"
               checked={Boolean(selectedNode.props.required)}
               onChange={(e) => updateProp('required', e.target.checked)}
+              aria-label="Mark field as required"
+              data-testid="property-required"
               className="rounded"
             />
           </div>
@@ -395,11 +508,19 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
         {/* Read-only toggle */}
         {['text', 'textarea', 'number', 'date', 'time', 'datetime', 'select'].includes(selectedNode.type) && (
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium">Read-only</label>
+            <label 
+              htmlFor={`prop-readonly-${selectedNode.id}`}
+              className="text-xs font-medium"
+            >
+              Read-only
+            </label>
             <input
+              id={`prop-readonly-${selectedNode.id}`}
               type="checkbox"
               checked={Boolean(selectedNode.props.readonly)}
               onChange={(e) => updateProp('readonly', e.target.checked)}
+              aria-label="Mark field as read-only"
+              data-testid="property-readonly"
               className="rounded"
             />
           </div>

@@ -1,4 +1,3 @@
-// Form Canvas - Drop zone for form elements
 import { useDrop } from 'react-dnd';
 import FormElement from './FormElement';
 import type { Node } from '../../types/formBuilder';
@@ -45,14 +44,26 @@ function FormCanvas({
       <div
         ref={(el) => { drop(el); }}
         onClick={handleCanvasClick}
+        role="main"
+        aria-label="Form canvas - empty"
+        aria-dropeffect="copy"
+        data-testid="form-canvas-empty"
         className={`flex-1 p-8 pb-24 bg-gray-50 h-screen overflow-y-auto ${isOver ? 'bg-primary/5' : ''}`}
       >
         <div className="flex flex-col items-center justify-center min-h-full text-center">
-          <div className="p-8 border-2 border-dashed border-gray-300 rounded-lg bg-white/50">
-            <h3 className="text-lg font-medium text-gray-600 mb-2">
+          <div 
+            className="p-8 border-2 border-dashed border-gray-300 rounded-lg bg-white/50"
+            role="status"
+            aria-live="polite"
+          >
+            <h3 
+              className="text-lg font-medium text-gray-600 mb-2"
+              role="heading"
+              aria-level={3}
+            >
               Start Building Your Form
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500" role="note">
               Drag components from the palette to begin creating your form.
             </p>
           </div>
@@ -65,9 +76,17 @@ function FormCanvas({
     <div
       ref={(el) => { drop(el); }}
       onClick={handleCanvasClick}
+      role="main"
+      aria-label={`Form canvas with ${nodes.length} component${nodes.length !== 1 ? 's' : ''}`}
+      aria-dropeffect="copy"
+      data-testid="form-canvas"
       className={`flex-1 p-8 pb-24 bg-gray-50 h-screen overflow-y-auto ${isOver ? 'bg-primary/5' : ''}`}
     >
-      <div className="max-w-4xl mx-auto space-y-4">
+      <div 
+        className="max-w-4xl mx-auto space-y-4"
+        role="list"
+        aria-label="Form components"
+      >
         {nodes.map((node, index) => (
           <FormElement
             key={node.id}
