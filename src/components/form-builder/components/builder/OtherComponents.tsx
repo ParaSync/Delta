@@ -4,23 +4,35 @@
 
 import type { BaseFieldProps, TableColumn } from '../types';
 import { toReactString } from '../../../../utils/formBuilder';
+import { InlineEdit } from '../InlineEdit';
 
-export function TableField({ node }: BaseFieldProps) {
+export function TableField({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
   const columns = (props.columns as TableColumn[]) || [];
   const tableId = `builder-table-${node.id}`;
   const labelText = toReactString(props.label || 'Table');
 
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
+
   return (
     <div className="space-y-2">
-      <label id={tableId} className="text-sm font-medium block">
-        {labelText}
+      <div className="flex items-center">
+        <InlineEdit
+          value={labelText}
+          onChange={handleLabelChange}
+          as="label"
+          className="text-sm font-medium"
+          placeholder="Table"
+          disabled={!onUpdateNode}
+        />
         {Boolean(props.required) && (
-          <span className="text-red-600" aria-label="required">
+          <span className="text-red-600 ml-0.5" aria-label="required">
             *
           </span>
         )}
-      </label>
+      </div>
       <div className="border border-gray-300 rounded-lg overflow-hidden">
         <table
           className="w-full"
@@ -89,9 +101,13 @@ export function ImageField({ node }: BaseFieldProps) {
   );
 }
 
-export function SubmitButton({ node }: BaseFieldProps) {
+export function SubmitButton({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
   const label = String(props.label || 'Submit');
+
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
 
   return (
     <button
@@ -102,14 +118,25 @@ export function SubmitButton({ node }: BaseFieldProps) {
         props.variant === 'secondary' ? 'bg-gray-600' : 'bg-primary'
       }`}
     >
-      {label}
+      <InlineEdit
+        value={label}
+        onChange={handleLabelChange}
+        as="span"
+        className="text-white"
+        placeholder="Submit"
+        disabled={!onUpdateNode}
+      />
     </button>
   );
 }
 
-export function ResetButton({ node }: BaseFieldProps) {
+export function ResetButton({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
   const label = String(props.label || 'Reset');
+
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
 
   return (
     <button
@@ -118,7 +145,13 @@ export function ResetButton({ node }: BaseFieldProps) {
       data-testid="builder-reset-button"
       className="px-8 py-2 rounded-xl font-bold text-gray-700 bg-gray-200 hover:bg-gray-300"
     >
-      {label}
+      <InlineEdit
+        value={label}
+        onChange={handleLabelChange}
+        as="span"
+        placeholder="Reset"
+        disabled={!onUpdateNode}
+      />
     </button>
   );
 }

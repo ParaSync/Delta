@@ -2,6 +2,7 @@ import { useRef, memo } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { GripVertical, Copy, Trash2, Eye, EyeOff } from 'lucide-react';
 import { getBuilderFieldComponent } from './components/builder';
+import { useDragReorder } from '../../hooks/use-drag-reorder';
 import type { Node } from '../../types/formBuilder';
 
 type FormElementProps = {
@@ -12,7 +13,7 @@ type FormElementProps = {
   onDuplicate: (nodeId: string) => void;
   onUpdateNode: (nodeId: string, props: Record<string, unknown>) => void;
   index: number;
-  moveElement: (dragIndex: number, hoverIndex: number) => void;
+  totalCount: number;
 };
 
 function FormElement({
@@ -23,30 +24,36 @@ function FormElement({
   onDuplicate,
   onUpdateNode,
   index,
-  moveElement,
+  totalCount,
 }: FormElementProps) {
   const elementRef = useRef<HTMLDivElement>(null);
+  const { dragState, startDrag, updateInsertionIndex } = useDragReorder();
+
+  const isBeingDragged = dragState.isDragging && dragState.draggedId === node.id;
 
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
-      type: 'ELEMENT',
-      item: { id: node.id, index },
+      type: 'FORM_ELEMENT',
+      item: () => {
+        startDrag(node.id, index);
+        return { id: node.id, index };
+      },
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
+      end: () => {
+        // Handled by canvas-level listener
+      },
     }),
-    [node.id, index]
+    [node.id, index, startDrag]
   );
 
   const [, drop] = useDrop(
     () => ({
-      accept: 'ELEMENT',
+      accept: 'FORM_ELEMENT',
       hover: (item: { id: string; index: number }, monitor) => {
         if (!elementRef.current) return;
-        if (item.index === index) return;
-
-        const dragIndex = item.index;
-        const hoverIndex = index;
+        if (item.id === node.id) return;
 
         // Get bounding rectangle of the hovered element
         const hoverBoundingRect = elementRef.current.getBoundingClientRect();
@@ -61,21 +68,15 @@ function FormElement({
         // Get pixels to the top
         const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
-        // Only perform the move when the mouse has crossed half of the items height
-        // When dragging downwards, only move when the cursor is below 50%
-        // When dragging upwards, only move when the cursor is above 50%
-        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-          return;
-        }
-        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-          return;
-        }
+        // Determine insertion index based on cursor position
+        // If cursor is above the middle, insert before this element
+        // If cursor is below the middle, insert after this element
+        const insertionIndex = hoverClientY < hoverMiddleY ? index : index + 1;
 
-        moveElement(dragIndex, hoverIndex);
-        item.index = hoverIndex;
+        updateInsertionIndex(insertionIndex);
       },
     }),
-    [index, moveElement]
+    [index, node.id, updateInsertionIndex]
   );
 
   const handleClick = (e: React.MouseEvent) => {
@@ -102,11 +103,25 @@ function FormElement({
   // Get the appropriate field component from the registry
   const FieldComponent = getBuilderFieldComponent(node.type);
 
+  // Make the whole element draggable when selected
+  const dragRef = useRef<HTMLDivElement>(null);
+  
+  // Connect drag to the drag handle or the whole element
+  const connectDrag = (el: HTMLDivElement | null) => {
+    if (el && isSelected) {
+      drag(el);
+    }
+  };
+
   return (
     <div
       ref={(el) => {
         elementRef.current = el;
         preview(drop(el));
+        // Also make the whole element draggable when selected
+        if (isSelected) {
+          drag(el);
+        }
       }}
       onClick={handleClick}
       role="listitem"
@@ -124,12 +139,17 @@ function FormElement({
           onDelete(node.id);
         }
       }}
-      className={`group relative p-2 rounded-lg transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:ring-1 hover:ring-gray-300'} ${isDragging ? 'opacity-50' : ''} ${node.props.visibleInPreview === false ? 'opacity-50 bg-gray-100' : ''}`}
+      className={`
+        group relative p-2 rounded-lg transition-all
+        ${isSelected ? 'ring-2 ring-primary ring-offset-2 cursor-grab active:cursor-grabbing' : 'hover:ring-1 hover:ring-gray-300'}
+        ${isBeingDragged ? 'opacity-40 bg-gray-200 scale-[0.98]' : ''}
+        ${node.props.visibleInPreview === false ? 'opacity-50 bg-gray-100' : ''}
+      `}
     >
       {/* Toolbar */}
-      {isSelected && (
+      {isSelected && !isBeingDragged && (
         <div
-          className="absolute -top-2 left-0 right-0 flex justify-between items-center bg-primary text-white rounded-md px-2 py-1 text-xs z-10"
+          className="absolute -top-4 left-0 right-0 flex justify-between items-center bg-primary text-white rounded-md px-2 py-1 text-xs z-10"
           role="toolbar"
           aria-label="Component actions"
           data-testid="form-element-toolbar"
@@ -200,7 +220,7 @@ function FormElement({
       )}
 
       {/* Render the field component from registry */}
-      <FieldComponent node={node} />
+      <FieldComponent node={node} onUpdateNode={onUpdateNode} />
     </div>
   );
 }

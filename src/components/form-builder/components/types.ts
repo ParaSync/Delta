@@ -10,6 +10,7 @@ import type { Node } from '../../../types/formBuilder';
 export interface BaseFieldProps {
   node: Node;
   disabled?: boolean;
+  onUpdateNode?: (nodeId: string, props: Record<string, unknown>) => void;
 }
 
 /**

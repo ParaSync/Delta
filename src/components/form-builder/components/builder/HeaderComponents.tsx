@@ -3,40 +3,81 @@
  */
 
 import type { BaseFieldProps } from '../types';
+import { InlineEdit } from '../InlineEdit';
 
-export function H1Field({ node }: BaseFieldProps) {
+export function H1Field({ node, onUpdateNode }: BaseFieldProps) {
+  const handleChange = (value: string) => {
+    onUpdateNode?.(node.id, { text: value });
+  };
+
   return (
-    <h1 className="text-3xl font-bold" data-testid="builder-h1" role="heading" aria-level={1}>
-      {String(node.props.text || 'Heading 1')}
-    </h1>
+    <InlineEdit
+      value={String(node.props.text || 'Heading 1')}
+      onChange={handleChange}
+      as="h1"
+      className="text-3xl font-bold"
+      placeholder="Heading 1"
+      disabled={!onUpdateNode}
+    />
   );
 }
 
-export function H2Field({ node }: BaseFieldProps) {
+export function H2Field({ node, onUpdateNode }: BaseFieldProps) {
+  const handleChange = (value: string) => {
+    onUpdateNode?.(node.id, { text: value });
+  };
+
   return (
-    <h2 className="text-2xl font-bold" data-testid="builder-h2" role="heading" aria-level={2}>
-      {String(node.props.text || 'Heading 2')}
-    </h2>
+    <InlineEdit
+      value={String(node.props.text || 'Heading 2')}
+      onChange={handleChange}
+      as="h2"
+      className="text-2xl font-bold"
+      placeholder="Heading 2"
+      disabled={!onUpdateNode}
+    />
   );
 }
 
-export function H3Field({ node }: BaseFieldProps) {
+export function H3Field({ node, onUpdateNode }: BaseFieldProps) {
+  const handleChange = (value: string) => {
+    onUpdateNode?.(node.id, { text: value });
+  };
+
   return (
-    <h3 className="text-xl font-bold" data-testid="builder-h3" role="heading" aria-level={3}>
-      {String(node.props.text || 'Heading 3')}
-    </h3>
+    <InlineEdit
+      value={String(node.props.text || 'Heading 3')}
+      onChange={handleChange}
+      as="h3"
+      className="text-xl font-bold"
+      placeholder="Heading 3"
+      disabled={!onUpdateNode}
+    />
   );
 }
 
-export function ParagraphField({ node }: BaseFieldProps) {
+export function ParagraphField({ node, onUpdateNode }: BaseFieldProps) {
+  const handleChange = (value: string) => {
+    onUpdateNode?.(node.id, { text: value });
+  };
+
   return (
-    <p className="text-base" data-testid="builder-paragraph">
-      {String(node.props.text || 'Paragraph text')}
-    </p>
+    <InlineEdit
+      value={String(node.props.text || 'Paragraph text')}
+      onChange={handleChange}
+      as="p"
+      className="text-base"
+      placeholder="Paragraph text"
+      disabled={!onUpdateNode}
+    />
   );
 }
 
-export function HelpField({ node }: BaseFieldProps) {
+export function HelpField({ node, onUpdateNode }: BaseFieldProps) {
+  const handleChange = (value: string) => {
+    onUpdateNode?.(node.id, { text: value });
+  };
+
   return (
     <div
       className="flex items-center gap-2 text-sm text-gray-500"
@@ -44,7 +85,13 @@ export function HelpField({ node }: BaseFieldProps) {
       role="note"
       aria-label="Help information"
     >
-      <span>{String(node.props.text || 'Help text')}</span>
+      <InlineEdit
+        value={String(node.props.text || 'Help text')}
+        onChange={handleChange}
+        as="span"
+        placeholder="Help text"
+        disabled={!onUpdateNode}
+      />
     </div>
   );
 }

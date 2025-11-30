@@ -4,23 +4,35 @@
 
 import type { BaseFieldProps, FieldOption } from '../types';
 import { toReactString } from '../../../../utils/formBuilder';
+import { InlineEdit } from '../InlineEdit';
 
-export function SelectField({ node }: BaseFieldProps) {
+export function SelectField({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
   const options = (props.options as FieldOption[]) || [];
   const fieldId = `builder-field-${node.id}`;
   const labelText = toReactString(props.label || 'Select Field');
 
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
+
   return (
     <div className="space-y-2">
-      <label htmlFor={fieldId} className="text-sm font-medium block">
-        {labelText}
+      <div className="flex items-center">
+        <InlineEdit
+          value={labelText}
+          onChange={handleLabelChange}
+          as="label"
+          className="text-sm font-medium"
+          placeholder="Select Field"
+          disabled={!onUpdateNode}
+        />
         {Boolean(props.required) && (
-          <span className="text-red-600" aria-label="required">
+          <span className="text-red-600 ml-0.5" aria-label="required">
             *
           </span>
         )}
-      </label>
+      </div>
       <select
         id={fieldId}
         aria-label={labelText}
@@ -40,22 +52,33 @@ export function SelectField({ node }: BaseFieldProps) {
   );
 }
 
-export function MultiselectField({ node }: BaseFieldProps) {
+export function MultiselectField({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
   const options = (props.options as FieldOption[]) || [];
   const groupId = `builder-group-${node.id}`;
   const labelText = toReactString(props.label || 'Multi-select Field');
 
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
+
   return (
     <div className="space-y-2">
-      <label id={groupId} className="text-sm font-medium block">
-        {labelText}
+      <div className="flex items-center">
+        <InlineEdit
+          value={labelText}
+          onChange={handleLabelChange}
+          as="label"
+          className="text-sm font-medium"
+          placeholder="Multi-select Field"
+          disabled={!onUpdateNode}
+        />
         {Boolean(props.required) && (
-          <span className="text-red-600" aria-label="required">
+          <span className="text-red-600 ml-0.5" aria-label="required">
             *
           </span>
         )}
-      </label>
+      </div>
       <div
         role="group"
         aria-labelledby={groupId}
@@ -87,22 +110,33 @@ export function MultiselectField({ node }: BaseFieldProps) {
   );
 }
 
-export function RadioField({ node }: BaseFieldProps) {
+export function RadioField({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
   const options = (props.options as FieldOption[]) || [];
   const groupId = `builder-group-${node.id}`;
   const labelText = toReactString(props.label || 'Radio Group');
 
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
+
   return (
     <div className="space-y-2">
-      <label id={groupId} className="text-sm font-medium block">
-        {labelText}
+      <div className="flex items-center">
+        <InlineEdit
+          value={labelText}
+          onChange={handleLabelChange}
+          as="label"
+          className="text-sm font-medium"
+          placeholder="Radio Group"
+          disabled={!onUpdateNode}
+        />
         {Boolean(props.required) && (
-          <span className="text-red-600" aria-label="required">
+          <span className="text-red-600 ml-0.5" aria-label="required">
             *
           </span>
         )}
-      </label>
+      </div>
       <div
         role="radiogroup"
         aria-labelledby={groupId}
@@ -136,10 +170,14 @@ export function RadioField({ node }: BaseFieldProps) {
   );
 }
 
-export function CheckboxField({ node }: BaseFieldProps) {
+export function CheckboxField({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
   const fieldId = `builder-field-${node.id}`;
   const labelText = String(props.label || 'Checkbox Field');
+
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
 
   return (
     <div className="flex items-center gap-2">
@@ -152,9 +190,14 @@ export function CheckboxField({ node }: BaseFieldProps) {
         className="rounded border-gray-300 pointer-events-none"
         disabled
       />
-      <label htmlFor={fieldId} className="text-sm font-medium">
-        {labelText}
-      </label>
+      <InlineEdit
+        value={labelText}
+        onChange={handleLabelChange}
+        as="label"
+        className="text-sm font-medium"
+        placeholder="Checkbox Field"
+        disabled={!onUpdateNode}
+      />
     </div>
   );
 }
