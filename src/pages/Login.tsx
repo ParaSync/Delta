@@ -36,7 +36,6 @@ export default function Login() {
       toast({
         title: 'Missing fields',
         description: 'Please fill in both email and password',
-        variant: 'destructive',
       });
       return;
     }
@@ -55,14 +54,12 @@ export default function Login() {
         toast({
           title: 'Login failed',
           description: 'Invalid email or password. Please try again.',
-          variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
       });
       console.error(error);
     }

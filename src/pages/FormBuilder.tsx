@@ -1,4 +1,5 @@
 import { useReducer, useCallback, useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ArrowLeft, Eye, Save, Upload } from 'lucide-react';
@@ -14,8 +15,11 @@ import {
   duplicateNode,
 } from '../utils/formBuilder';
 import { generateId } from '../utils/formBuilder';
-import type { FormSchema, FormBuilderState, BuilderAction } from '../types/formBuilder';
+import type { FormSchema, FormBuilderState, BuilderAction, Node} from '../types/formBuilder';
+import type { BackendNode, InputProperties, ComponentProperties } from '../types/components';
 import { toast } from '../hooks/use-toast';
+import { useAuth } from '@/contexts/auth-context';
+import { route } from '@/firebase/client';
 
 const initialSchema: FormSchema = {
   title: 'Untitled Form',
@@ -181,6 +185,7 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
     }
 
     case 'SELECT_NODE':
+      console.log(state.schema.pages[0].elements);
       return {
         ...state,
         selectedNodeId: action.nodeId,
@@ -200,6 +205,8 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
 
 function FormBuilder() {
   const [state, dispatch] = useReducer(formBuilderReducer, initialState);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleDropComponent = useCallback(
     (componentType: string, defaultProps: Record<string, unknown>) => {
@@ -252,14 +259,141 @@ function FormBuilder() {
     dispatch({ type: 'TOGGLE_PREVIEW' });
   };
 
-  const handleSave = () => {
+  const unique = (prefix: string) =>
+  `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+  const cvtTypeToComponent = (component: Node, order: number): BackendNode => {
+    let backendNode: BackendNode = {
+      type: '',
+      name: '',
+      order: order,
+      properties: {          
+        required: Boolean(component.props.required),
+        label: component.props.label.toString()
+      }
+    }
+    
+    switch (component.type) {
+      // case 'h1':
+      //   break;
+      case 'text':{
+          backendNode.properties.placeholder = component.props.placeholder.toString();
+          backendNode.type = 'text';
+          backendNode.name = '';
+        }
+        break;
+      case 'number':{
+          const max = component.props.max == undefined ? '' : component.props.max.toString();
+          const min = component.props.min == undefined ? '' : component.props.min.toString();
+          const step = component.props.step == undefined ? '' : component.props.step.toString();
+
+          backendNode.properties = {
+            max: max,
+            min: min,
+            step: Number(step),
+          };
+          backendNode.type = 'number';
+          backendNode.name = '';
+        }
+        break;
+      case 'datetime':{
+          backendNode.type = 'datetime-local';
+          backendNode.name = '';
+        }
+        break;
+      // case 'textarea':
+      //   break;      
+      // case 'date':
+      //   break;      
+      // case 'time':
+      //   break;
+      case 'select':{
+          // Unfort Select has not been implemented in the types yet so holding off on this one
+        }
+        break;
+      case 'checkbox':{
+          // Checkbox options is not yet implemented in frontend
+          backendNode.properties.options = (component.props.options as { label: string }[]).map(opt => opt.label);
+          backendNode.type = 'checkbox';
+          backendNode.name = '';
+        }
+        break;
+      case 'radio':{
+          backendNode.properties.options = (component.props.options as { label: string }[]).map(opt => opt.label);
+          backendNode.type = 'radio';
+          backendNode.name = '';
+        }
+        break;
+      // case 'file':
+      //   break;
+      // case 'image':
+      //   break;
+      // case 'table':
+      //   break;
+      case 'submit':{
+          backendNode.type = 'button';
+          backendNode.name = '';
+          backendNode.properties.function = 'submit';
+          delete backendNode.properties.required;
+        }
+        break;
+      case 'reset':{
+          backendNode.type = 'button';
+          backendNode.name = '';
+          backendNode.properties.function = 'reset';
+          delete backendNode.properties.required;
+        }
+        break;
+      default:
+        return undefined;
+    }
+    return backendNode;
+  }
+
+  const cvtStateToBody = (components: BackendNode[]) => {
+    const elements = state.schema.pages[0].elements;
+    let count = 1;
+    for (let index = 0; index < elements.length; index++) {
+      const component: BackendNode = cvtTypeToComponent(elements[index], count);
+      if (component !== undefined ){
+        components.push(component);
+        count++;
+      }
+    }
+  }
+
+  const handleSave = async () => {
     // Mock save functionality
     console.log('Saving form:', state.schema);
-    toast({
-      title: 'Form saved successfully!',
-      description: 'Your form has been saved.',
-      type: 'success',
+    let body = {
+      title: initialSchema.title,
+      userId: user.supaId,
+      components: [],
+    };
+    cvtStateToBody(body.components);
+    console.log('Body: ', body);
+    
+    const response = await fetch(route("/api/form/create"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
+
+    if (response.ok) {
+      toast({
+        title: 'Form saved successfully!',
+        description: 'Your form has been saved.',
+        type: 'success',
+      });
+      console.log("Successfully :", response.status, await response.text());
+
+    } else {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+      });
+      console.error("Error:", response.status, await response.text());
+    }
   };
 
   const selectedNode = state.selectedNodeId
@@ -295,7 +429,9 @@ function FormBuilder() {
         {/* Top Bar */}
         <div className="h-16 border-b border-gray-200 bg-white px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded-md">
+            <button 
+              onClick={() => navigate('/forms')}
+              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded-md">
               <ArrowLeft className="h-4 w-4" />
               Back
             </button>

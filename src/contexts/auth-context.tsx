@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from '../firebase/client';
+import { auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, route } from '../firebase/client';
 
 interface User {
   id: string;
   name?: string;
   email: string;
-  role?: 'admin' | 'employee'; // You can store roles in Firestore later if needed
+  supaId: string;
+  role?: 'admin' | 'employee';
 }
 
 interface AuthContextType {
@@ -17,7 +18,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within an AuthProvider');
@@ -31,11 +31,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Watch Firebase auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
+      if (firebaseUser && user?.supaId) {
         setUser({
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
           name: firebaseUser.displayName || '',
+          supaId: user.supaId,
+        });
+      } else if (firebaseUser) {
+        setUser({
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          name: firebaseUser.displayName || '',
+          supaId: '',
         });
       } else {
         setUser(null);
@@ -44,18 +52,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return unsubscribe;
-  }, []);
+  }, [user?.supaId]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     try {
+      // Firebase login
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
 
+      // Backend Supabase ID lookup
+      const response = await fetch(route('/get-user-id'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      const supaId = data?.value?.id || '';
+
+      // Save user with supabase ID
       setUser({
         id: firebaseUser.uid,
         email: firebaseUser.email || '',
         name: firebaseUser.displayName || '',
+        supaId,
       });
 
       setIsLoading(false);
