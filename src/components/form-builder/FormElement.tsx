@@ -105,7 +105,7 @@ function FormElement({
 
   // Make the whole element draggable when selected
   const dragRef = useRef<HTMLDivElement>(null);
-  
+
   // Connect drag to the drag handle or the whole element
   const connectDrag = (el: HTMLDivElement | null) => {
     if (el && isSelected) {

@@ -59,23 +59,43 @@ function BaseInputField({
 }
 
 export function TextField({ node, onUpdateNode }: BaseFieldProps) {
-  return <BaseInputField node={node} type="text" defaultLabel="Text Field" onUpdateNode={onUpdateNode} />;
+  return (
+    <BaseInputField node={node} type="text" defaultLabel="Text Field" onUpdateNode={onUpdateNode} />
+  );
 }
 
 export function NumberField({ node, onUpdateNode }: BaseFieldProps) {
-  return <BaseInputField node={node} type="number" defaultLabel="Number Field" onUpdateNode={onUpdateNode} />;
+  return (
+    <BaseInputField
+      node={node}
+      type="number"
+      defaultLabel="Number Field"
+      onUpdateNode={onUpdateNode}
+    />
+  );
 }
 
 export function DateField({ node, onUpdateNode }: BaseFieldProps) {
-  return <BaseInputField node={node} type="date" defaultLabel="Date Field" onUpdateNode={onUpdateNode} />;
+  return (
+    <BaseInputField node={node} type="date" defaultLabel="Date Field" onUpdateNode={onUpdateNode} />
+  );
 }
 
 export function TimeField({ node, onUpdateNode }: BaseFieldProps) {
-  return <BaseInputField node={node} type="time" defaultLabel="Time Field" onUpdateNode={onUpdateNode} />;
+  return (
+    <BaseInputField node={node} type="time" defaultLabel="Time Field" onUpdateNode={onUpdateNode} />
+  );
 }
 
 export function DateTimeField({ node, onUpdateNode }: BaseFieldProps) {
-  return <BaseInputField node={node} type="datetime-local" defaultLabel="Date & Time Field" onUpdateNode={onUpdateNode} />;
+  return (
+    <BaseInputField
+      node={node}
+      type="datetime-local"
+      defaultLabel="Date & Time Field"
+      onUpdateNode={onUpdateNode}
+    />
+  );
 }
 
 export function TextareaField({ node, onUpdateNode }: BaseFieldProps) {

@@ -61,7 +61,7 @@ export function InlineEdit({
     (e: React.KeyboardEvent) => {
       // Stop propagation for all keys to prevent parent handlers from interfering
       e.stopPropagation();
-      
+
       if (e.key === 'Enter') {
         e.preventDefault();
         handleBlur();
@@ -158,7 +158,7 @@ export function InlineEditTextarea({
     (e: React.KeyboardEvent) => {
       // Stop propagation for all keys to prevent parent handlers from interfering
       e.stopPropagation();
-      
+
       if (e.key === 'Escape') {
         e.preventDefault();
         setEditValue(value);

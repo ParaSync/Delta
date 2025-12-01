@@ -104,13 +104,10 @@ export function useDragReorder() {
   if (!context) {
     throw new Error('useDragReorder must be used within a DragReorderProvider');
   }
-  
+
   // Subscribe to global state changes
-  const dragState = useSyncExternalStore(
-    context.subscribe,
-    () => globalDragState
-  );
-  
+  const dragState = useSyncExternalStore(context.subscribe, () => globalDragState);
+
   return {
     ...context,
     dragState,

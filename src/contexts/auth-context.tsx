@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, route } from '../firebase/client';
+import {
+  auth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  route,
+} from '../firebase/client';
 
 interface User {
   id: string;

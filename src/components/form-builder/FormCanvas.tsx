@@ -34,7 +34,11 @@ function FormCanvasContent({
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ['COMPONENT', 'FORM_ELEMENT'],
-    drop: (item: { componentType?: string; defaultProps?: Record<string, unknown>; type?: string }) => {
+    drop: (item: {
+      componentType?: string;
+      defaultProps?: Record<string, unknown>;
+      type?: string;
+    }) => {
       // Handle new component drop from palette
       if (item.componentType && item.defaultProps) {
         onDropComponent(item.componentType, item.defaultProps);
@@ -107,26 +111,26 @@ function FormCanvasContent({
   // Determine which element should show the insertion indicator
   const getIndicatorPosition = (index: number): 'before' | 'after' | null => {
     if (!dragState.isDragging || dragState.insertionIndex === null) return null;
-    
+
     const { insertionIndex, draggedIndex } = dragState;
-    
+
     // Don't show indicator adjacent to the dragged element's original position
     // This covers: dragging to same position, or to immediately before/after itself
     if (draggedIndex === index && insertionIndex === index) return null;
     if (draggedIndex === index && insertionIndex === index + 1) return null;
     if (draggedIndex === index - 1 && insertionIndex === index) return null;
-    
+
     // Show "before" indicator if insertion is at this index
     if (insertionIndex === index && draggedIndex !== index) {
       return 'before';
     }
-    
+
     // Show "after" indicator on the last element if insertion is at the end
     // But not if we're dragging the last element to below itself
     if (index === nodes.length - 1 && insertionIndex === nodes.length && draggedIndex !== index) {
       return 'after';
     }
-    
+
     return null;
   };
 

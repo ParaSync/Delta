@@ -85,11 +85,11 @@ export interface TableProperties extends ComponentProperties {
 }
 
 export type BackendNode = {
-  type: string,
-  name: string,
-  order: number,
-  properties: any
-}
+  type: string;
+  name: string;
+  order: number;
+  properties: any;
+};
 
 // ! These type guards were implemented by Copilot.
 
