@@ -15,7 +15,7 @@ import {
   duplicateNode,
 } from '../utils/formBuilder';
 import { generateId } from '../utils/formBuilder';
-import type { FormSchema, FormBuilderState, BuilderAction, Node} from '../types/formBuilder';
+import type { FormSchema, FormBuilderState, BuilderAction, Node } from '../types/formBuilder';
 import type { BackendNode, InputProperties, ComponentProperties } from '../types/components';
 import { toast } from '../hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
@@ -260,29 +260,31 @@ function FormBuilder() {
   };
 
   const unique = (prefix: string) =>
-  `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
   const cvtTypeToComponent = (component: Node, order: number): BackendNode => {
-    let backendNode: BackendNode = {
+    const backendNode: BackendNode = {
       type: '',
       name: '',
       order: order,
-      properties: {          
+      properties: {
         required: Boolean(component.props.required),
-        label: component.props.label.toString()
-      }
-    }
-    
+        label: component.props.label.toString(),
+      },
+    };
+
     switch (component.type) {
       // case 'h1':
       //   break;
-      case 'text':{
+      case 'text':
+        {
           backendNode.properties.placeholder = component.props.placeholder.toString();
           backendNode.type = 'text';
           backendNode.name = '';
         }
         break;
-      case 'number':{
+      case 'number':
+        {
           const max = component.props.max == undefined ? '' : component.props.max.toString();
           const min = component.props.min == undefined ? '' : component.props.min.toString();
           const step = component.props.step == undefined ? '' : component.props.step.toString();
@@ -296,30 +298,38 @@ function FormBuilder() {
           backendNode.name = '';
         }
         break;
-      case 'datetime':{
+      case 'datetime':
+        {
           backendNode.type = 'datetime-local';
           backendNode.name = '';
         }
         break;
       // case 'textarea':
-      //   break;      
+      //   break;
       // case 'date':
-      //   break;      
+      //   break;
       // case 'time':
       //   break;
-      case 'select':{
+      case 'select':
+        {
           // Unfort Select has not been implemented in the types yet so holding off on this one
         }
         break;
-      case 'checkbox':{
+      case 'checkbox':
+        {
           // Checkbox options is not yet implemented in frontend
-          backendNode.properties.options = (component.props.options as { label: string }[]).map(opt => opt.label);
+          backendNode.properties.options = (component.props.options as { label: string }[]).map(
+            (opt) => opt.label
+          );
           backendNode.type = 'checkbox';
           backendNode.name = '';
         }
         break;
-      case 'radio':{
-          backendNode.properties.options = (component.props.options as { label: string }[]).map(opt => opt.label);
+      case 'radio':
+        {
+          backendNode.properties.options = (component.props.options as { label: string }[]).map(
+            (opt) => opt.label
+          );
           backendNode.type = 'radio';
           backendNode.name = '';
         }
@@ -330,14 +340,16 @@ function FormBuilder() {
       //   break;
       // case 'table':
       //   break;
-      case 'submit':{
+      case 'submit':
+        {
           backendNode.type = 'button';
           backendNode.name = '';
           backendNode.properties.function = 'submit';
           delete backendNode.properties.required;
         }
         break;
-      case 'reset':{
+      case 'reset':
+        {
           backendNode.type = 'button';
           backendNode.name = '';
           backendNode.properties.function = 'reset';
@@ -348,34 +360,34 @@ function FormBuilder() {
         return undefined;
     }
     return backendNode;
-  }
+  };
 
   const cvtStateToBody = (components: BackendNode[]) => {
     const elements = state.schema.pages[0].elements;
     let count = 1;
     for (let index = 0; index < elements.length; index++) {
       const component: BackendNode = cvtTypeToComponent(elements[index], count);
-      if (component !== undefined ){
+      if (component !== undefined) {
         components.push(component);
         count++;
       }
     }
-  }
+  };
 
   const handleSave = async () => {
     // Mock save functionality
     console.log('Saving form:', state.schema);
-    let body = {
-      title: initialSchema.title,
+    const body = {
+      title: state.schema.title,
       userId: user.supaId,
       components: [],
     };
     cvtStateToBody(body.components);
     console.log('Body: ', body);
-    
-    const response = await fetch(route("/api/form/create"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+
+    const response = await fetch(route('/api/form/create'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
 
@@ -385,14 +397,13 @@ function FormBuilder() {
         description: 'Your form has been saved.',
         type: 'success',
       });
-      console.log("Successfully :", response.status, await response.text());
-
+      console.log('Successfully :', response.status, await response.text());
     } else {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred. Please try again.',
       });
-      console.error("Error:", response.status, await response.text());
+      console.error('Error:', response.status, await response.text());
     }
   };
 
@@ -429,9 +440,10 @@ function FormBuilder() {
         {/* Top Bar */}
         <div className="h-16 border-b border-gray-200 bg-white px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={() => navigate('/forms')}
-              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded-md">
+              className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 rounded-md"
+            >
               <ArrowLeft className="h-4 w-4" />
               Back
             </button>

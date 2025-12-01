@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,68 +12,44 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/auth-context';
 import { useNavigate } from 'react-router-dom';
+import { route } from '@/firebase/client';
 
-const mockForms = [
-  {
-    id: 1,
-    name: 'Employee Onboarding Form',
-    description: 'Comprehensive onboarding process for new hires',
-    responses: 45,
-    lastEdited: '2 hours ago',
-    status: 'active',
-    createdBy: 'Admin User',
-  },
-  {
-    id: 2,
-    name: 'Equipment Request Form',
-    description: 'Request new equipment or report issues',
-    responses: 23,
-    lastEdited: '1 day ago',
-    status: 'active',
-    createdBy: 'HR Manager',
-  },
-  {
-    id: 3,
-    name: 'Time Off Request',
-    description: 'Submit vacation and leave requests',
-    responses: 67,
-    lastEdited: '3 days ago',
-    status: 'active',
-    createdBy: 'Admin User',
-  },
-  {
-    id: 4,
-    name: 'Performance Review',
-    description: 'Annual performance evaluation form',
-    responses: 12,
-    lastEdited: '1 week ago',
-    status: 'draft',
-    createdBy: 'Manager',
-  },
-  {
-    id: 5,
-    name: 'Customer Feedback Survey',
-    description: 'Collect feedback from customers',
-    responses: 156,
-    lastEdited: '2 weeks ago',
-    status: 'archived',
-    createdBy: 'Marketing Team',
-  },
-];
+type Form = {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: Date;
+};
 
 export default function Forms() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [forms, setForms] = useState<Form[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const navigate = useNavigate();
 
-  const filteredForms = mockForms.filter((form) => {
-    const matchesSearch =
-      form.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      form.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || form.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const fetchForms = async () => {
+    const response = await fetch(route('/api/form/list/' + user.supaId), {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setForms(data.value);
+      console.log('Successful:', response.status, forms);
+    } else {
+      console.error('Error:', response.status, data);
+    }
+  };
+
+  useEffect(() => {
+    fetchForms();
+  }, []);
+
+  const filteredForms =
+    forms?.filter((form) => form.title.toLowerCase().includes(searchTerm.toLowerCase())) || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -151,9 +127,12 @@ export default function Forms() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1 flex-1">
                   <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                    {form.name}
+                    {form.title}
                   </CardTitle>
-                  <CardDescription className="text-sm">{form.description}</CardDescription>
+                  {/* <CardDescription className="text-sm">{form.description}</CardDescription> */}
+                  <CardDescription className="text-sm">
+                    Description in future Implementations
+                  </CardDescription>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -184,14 +163,14 @@ export default function Forms() {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
+              {/* <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>{form.responses} responses</span>
                 <Badge variant={getStatusColor(form.status)}>{form.status}</Badge>
-              </div>
+              </div> */}
 
               <div className="text-sm text-muted-foreground">
-                <p>Created by {form.createdBy}</p>
-                <p>Last edited {form.lastEdited}</p>
+                {/* <p>Created at {form.created_at.toLocaleDateString("en-US")}</p> */}
+                {/* <p>Last edited {form.lastEdited}</p> */}
               </div>
 
               <div className="flex gap-2">
@@ -236,7 +215,11 @@ export default function Forms() {
   );
 }
 
-function EmployeeFormsView({ forms }: { forms: typeof mockForms }) {
+interface EmployeeFormsViewProps {
+  forms: Form[];
+}
+
+const EmployeeFormsView = ({ forms }: EmployeeFormsViewProps) => {
   return (
     <div className="space-y-6">
       <div>
@@ -246,7 +229,7 @@ function EmployeeFormsView({ forms }: { forms: typeof mockForms }) {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {forms
-          .filter((form) => form.status === 'active')
+          // .filter((form) => form.status === 'active')
           .map((form) => (
             <Card
               key={form.id}
@@ -254,15 +237,16 @@ function EmployeeFormsView({ forms }: { forms: typeof mockForms }) {
             >
               <CardHeader>
                 <CardTitle className="group-hover:text-primary transition-colors">
-                  {form.name}
+                  {form.title}
                 </CardTitle>
-                <CardDescription>{form.description}</CardDescription>
+                {/* <CardDescription>{form.description}</CardDescription> */}
+                <CardDescription>Description in </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <div className="text-sm text-muted-foreground">
+                {/* <div className="text-sm text-muted-foreground">
                   <p>{form.responses} people have completed this form</p>
-                </div>
+                </div> */}
 
                 <Button className="w-full">Start Form</Button>
               </CardContent>
@@ -271,4 +255,4 @@ function EmployeeFormsView({ forms }: { forms: typeof mockForms }) {
       </div>
     </div>
   );
-}
+};
