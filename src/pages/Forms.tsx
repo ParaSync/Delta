@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/contexts/auth-context';
 import { useNavigate } from 'react-router-dom';
 import { route } from '@/firebase/client';
+import { toast } from '@/hooks/use-toast';
 
 type Form = {
   id: string;
@@ -41,6 +42,37 @@ export default function Forms() {
       console.log('Successful:', response.status, forms);
     } else {
       console.error('Error:', response.status, data);
+    }
+  };
+
+  const deleteForm = async (formId: string) => {
+    try {
+      const response = await fetch(route(`/api/form/delete/${formId}`), {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          confirm: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status}`);
+      }
+      console.log(`Successfully deleted Form ${formId}`);
+      toast({
+        title: 'Form deleted successfully',
+        description: 'The form has been removed.',
+      });
+
+      setForms((prev) => prev.filter((f) => f.id !== formId));
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Error deleting form',
+        description: 'Something went wrong. Try again.',
+      });
     }
   };
 
@@ -153,7 +185,7 @@ export default function Forms() {
                       <Copy className="mr-2 h-4 w-4" />
                       Duplicate
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
+                    <DropdownMenuItem className="text-red-600" onClick={() => deleteForm(form.id)}>
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>

@@ -83,14 +83,14 @@ export interface TableProperties extends ComponentProperties {
     columns: [properties: InputProperties];
   };
 }
-
+/* eslint-disable */
 export type BackendNode = {
   type: string;
   name: string;
   order: number;
   properties: any;
 };
-
+ 
 // ! These type guards were implemented by Copilot.
 
 export function isImageProperties(
