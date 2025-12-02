@@ -218,7 +218,11 @@ export default function Forms() {
               </div>
 
               <div className="flex gap-2">
-                <Button className="flex-1" size="sm">
+                <Button
+                  className="flex-1"
+                  size="sm"
+                  onClick={() => navigate('/forms/edit/' + form.id)}
+                >
                   Edit Form
                 </Button>
                 <Button variant="outline" size="sm">

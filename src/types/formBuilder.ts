@@ -94,4 +94,5 @@ export type BuilderAction =
   | { type: 'TOGGLE_PREVIEW' }
   | { type: 'UNDO' }
   | { type: 'REDO' }
-  | { type: 'SAVE_TO_HISTORY' };
+  | { type: 'SAVE_TO_HISTORY' }
+  | { type: 'LOAD_FORM_SCHEMA'; schema: FormSchema };

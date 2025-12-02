@@ -1,5 +1,6 @@
-import { useReducer, useCallback, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useReducer, useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ArrowLeft, Eye, Save, Upload } from 'lucide-react';
@@ -16,28 +17,10 @@ import {
 } from '../utils/formBuilder';
 import { generateId } from '../utils/formBuilder';
 import type { FormSchema, FormBuilderState, BuilderAction, Node } from '../types/formBuilder';
-import type { BackendNode, InputProperties, ComponentProperties } from '../types/components';
+import type { BackendNode } from '../types/components';
 import { toast } from '../hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { route } from '@/firebase/client';
-
-const initialSchema: FormSchema = {
-  title: 'Untitled Form',
-  pages: [
-    {
-      id: generateId(),
-      elements: [],
-    },
-  ],
-};
-
-const initialState: FormBuilderState = {
-  schema: initialSchema,
-  selectedNodeId: undefined,
-  isPreview: false,
-  history: [initialSchema],
-  historyIndex: 0,
-};
 
 function formBuilderReducer(state: FormBuilderState, action: BuilderAction): FormBuilderState {
   switch (action.type) {
@@ -204,9 +187,67 @@ function formBuilderReducer(state: FormBuilderState, action: BuilderAction): For
 }
 
 function FormBuilder() {
-  const [state, dispatch] = useReducer(formBuilderReducer, initialState);
+  const initialSchema: FormSchema = {
+    title: 'Untitled Form',
+    pages: [
+      {
+        id: generateId(),
+        elements: [],
+      },
+    ],
+  };
+
+  const initialState: FormBuilderState = {
+    schema: initialSchema,
+    selectedNodeId: undefined,
+    isPreview: false,
+    history: [initialSchema],
+    historyIndex: 0,
+  };
+
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [state, dispatch] = useReducer(formBuilderReducer, initialState);
+
+  const fetchForms = useCallback(async () => {
+    if (location.pathname.includes('edit')) {
+      setIsEditing(true);
+      const segments = location.pathname.split('/');
+      const formId = segments[segments.length - 1];
+
+      try {
+        const response = await fetch(route('/api/form/fetch/' + formId), {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log('Successful fetch response:', response.status, data);
+          cvtBodyToState(data);
+        } else {
+          console.error('Error:', response.status, data);
+          toast({
+            title: 'Error fetching form data.',
+            description: 'Your form components are unavailable right now.',
+          });
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        toast({
+          title: 'Error fetching form data.',
+          description: 'Network error occurred.',
+        });
+      }
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    fetchForms();
+  }, [fetchForms]);
 
   const handleDropComponent = useCallback(
     (componentType: string, defaultProps: Record<string, unknown>) => {
@@ -231,15 +272,12 @@ function FormBuilder() {
 
   const handleDeleteNode = useCallback(
     (nodeId: string) => {
-      // find the index of the node to delete and compute the previous node id
       const elements = state.schema.pages[0].elements;
       const idx = elements.findIndex((el) => el.id === nodeId);
       const prevId = idx > 0 ? elements[idx - 1].id : undefined;
 
-      // delete the node
       dispatch({ type: 'DELETE_NODE', nodeId });
 
-      // if a previous node exists, select it
       if (prevId) {
         dispatch({ type: 'SELECT_NODE', nodeId: prevId });
       }
@@ -259,103 +297,76 @@ function FormBuilder() {
     dispatch({ type: 'TOGGLE_PREVIEW' });
   };
 
-  const unique = (prefix: string) =>
-    `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-
-  const cvtTypeToComponent = (component: Node, order: number): BackendNode => {
+  const cvtTypeToComponent = (component: Node, order: number): BackendNode | undefined => {
     const backendNode: BackendNode = {
       type: '',
       name: '',
       order: order,
       properties: {
         required: Boolean(component.props.required),
-        label: component.props.label.toString(),
+        label: component.props.label?.toString() || '',
       },
     };
 
     switch (component.type) {
-      // case 'h1':
-      //   break;
-      case 'text':
-        {
-          backendNode.properties.placeholder = component.props.placeholder.toString();
-          backendNode.type = 'text';
-          backendNode.name = '';
-        }
+      case 'text': {
+        backendNode.properties.placeholder = component.props.placeholder?.toString() || '';
+        backendNode.type = 'text';
+        backendNode.name = '';
         break;
-      case 'number':
-        {
-          const max = component.props.max == undefined ? '' : component.props.max.toString();
-          const min = component.props.min == undefined ? '' : component.props.min.toString();
-          const step = component.props.step == undefined ? '' : component.props.step.toString();
+      }
+      case 'number': {
+        const max = component.props.max == undefined ? '' : component.props.max.toString();
+        const min = component.props.min == undefined ? '' : component.props.min.toString();
+        const step = component.props.step == undefined ? '' : component.props.step.toString();
 
-          backendNode.properties = {
-            max: max,
-            min: min,
-            step: Number(step),
-          };
-          backendNode.type = 'number';
-          backendNode.name = '';
-        }
+        backendNode.properties = {
+          ...backendNode.properties,
+          max: max,
+          min: min,
+          step: Number(step),
+        };
+        backendNode.type = 'number';
+        backendNode.name = '';
         break;
-      case 'datetime':
-        {
-          backendNode.type = 'datetime-local';
-          backendNode.name = '';
-        }
+      }
+      case 'datetime': {
+        backendNode.type = 'datetime-local';
+        backendNode.name = '';
         break;
-      // case 'textarea':
-      //   break;
-      // case 'date':
-      //   break;
-      // case 'time':
-      //   break;
-      case 'select':
-        {
-          // Unfort Select has not been implemented in the types yet so holding off on this one
-        }
+      }
+      case 'select': {
+        // Select not yet implemented
         break;
-      case 'checkbox':
-        {
-          // Checkbox options is not yet implemented in frontend
-          backendNode.properties.options = (component.props.options as { label: string }[]).map(
-            (opt) => opt.label
-          );
-          backendNode.type = 'checkbox';
-          backendNode.name = '';
-        }
+      }
+      case 'checkbox': {
+        backendNode.properties.options =
+          (component.props.options as { label: string }[])?.map((opt) => opt.label) || [];
+        backendNode.type = 'checkbox';
+        backendNode.name = '';
         break;
-      case 'radio':
-        {
-          backendNode.properties.options = (component.props.options as { label: string }[]).map(
-            (opt) => opt.label
-          );
-          backendNode.type = 'radio';
-          backendNode.name = '';
-        }
+      }
+      case 'radio': {
+        backendNode.properties.options =
+          (component.props.options as { label: string }[])?.map((opt) => opt.label) || [];
+        backendNode.type = 'radio';
+        backendNode.name = '';
         break;
-      // case 'file':
-      //   break;
-      // case 'image':
-      //   break;
-      // case 'table':
-      //   break;
-      case 'submit':
-        {
-          backendNode.type = 'button';
-          backendNode.name = '';
-          backendNode.properties.function = 'submit';
-          delete backendNode.properties.required;
-        }
+      }
+      case 'submit': {
+        backendNode.type = 'button';
+        backendNode.name = '';
+        backendNode.properties.function = 'submit';
+        delete backendNode.properties.required;
         break;
-      case 'reset':
-        {
-          backendNode.type = 'button';
-          backendNode.name = '';
-          backendNode.properties.function = 'reset';
-          delete backendNode.properties.required;
-        }
+      }
+      case 'reset': {
+        backendNode.type = 'button';
+        backendNode.name = '';
+        backendNode.properties.function = 'reset';
+        delete backendNode.properties.required;
         break;
+      }
       default:
         return undefined;
     }
@@ -366,44 +377,144 @@ function FormBuilder() {
     const elements = state.schema.pages[0].elements;
     let count = 1;
     for (let index = 0; index < elements.length; index++) {
-      const component: BackendNode = cvtTypeToComponent(elements[index], count);
+      const component = cvtTypeToComponent(elements[index], count);
       if (component !== undefined) {
         components.push(component);
         count++;
       }
     }
   };
+  /* eslint-disable */
+  const cvtComponentToType = (backendNode: any): Node | undefined => {
+    const nodeProps: Record<string, unknown> = {};
+
+    const source = backendNode.properties ?? backendNode;
+
+    if ('required' in source) nodeProps.required = Boolean(source.required);
+    if ('label' in source) nodeProps.label = String(source.label);
+    if ('placeholder' in source) nodeProps.placeholder = String(source.placeholder);
+    if ('min' in source && source.min !== '') nodeProps.min = source.min;
+    if ('max' in source && source.max !== '') nodeProps.max = source.max;
+    if ('step' in source && source.step !== '' && source.step !== 0) nodeProps.step = source.step;
+    if ('options' in source)
+      nodeProps.options = (source.options as string[]).map((opt) => ({ label: opt }));
+
+    let type: string | undefined;
+
+    const inputType = source.inputType || backendNode.type;
+
+    switch (inputType) {
+      case 'text':
+        type = 'text';
+        break;
+      case 'number':
+        type = 'number';
+        break;
+      case 'datetime-local':
+        type = 'datetime';
+        break;
+      case 'checkbox':
+        type = 'checkbox';
+        break;
+      case 'radio':
+        type = 'radio';
+        break;
+      case 'button':
+        if (source.function === 'submit') type = 'submit';
+        else if (source.function === 'reset') type = 'reset';
+        break;
+      default:
+        console.warn('Unknown input type:', inputType);
+        return undefined;
+    }
+
+    if (!type) return undefined;
+
+    // Generate ID for each node
+    return {
+      id: generateId(),
+      type,
+      props: nodeProps,
+    } as Node;
+  };
+  /* eslint-disable */
+  const cvtBodyToState = useCallback((data: any) => {
+    const components = Array.isArray(data.value) ? data.value : data?.components || [];
+    const title = data?.title || data?.value?.title || 'Untitled Form';
+
+    console.log('Loading form data:', { data, components, title });
+
+    if (!Array.isArray(components)) {
+      console.error('Components is not an array:', components);
+      toast({
+        title: 'Error loading form',
+        description: 'Invalid form data structure.',
+      });
+      return;
+    }
+
+    if (components.length === 0) {
+      console.warn('No components to load');
+      return;
+    }
+
+    dispatch({ type: 'SET_TITLE', title });
+
+    for (let i = 0; i < components.length; i++) {
+      const node = cvtComponentToType(components[i]);
+      if (node) {
+        console.log('Adding node:', node);
+        dispatch({ type: 'ADD_NODE', node, index: i });
+      } else {
+        console.warn('Failed to convert component:', components[i]);
+      }
+    }
+
+    console.log('Finished loading components');
+  }, []);
 
   const handleSave = async () => {
-    // Mock save functionality
     console.log('Saving form:', state.schema);
+
     const body = {
       title: state.schema.title,
       userId: user.supaId,
-      components: [],
+      components: [] as BackendNode[],
     };
     cvtStateToBody(body.components);
     console.log('Body: ', body);
+    if (!isEditing) {
+      try {
+        const response = await fetch(route('/api/form/create'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-    const response = await fetch(route('/api/form/create'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+        const data = await response.json();
 
-    if (response.ok) {
-      toast({
-        title: 'Form saved successfully!',
-        description: 'Your form has been saved.',
-        type: 'success',
-      });
-      console.log('Successfully :', response.status, await response.text());
-    } else {
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred. Please try again.',
-      });
-      console.error('Error:', response.status, await response.text());
+        if (response.ok) {
+          const formId = data.value?.id;
+          console.log('Created form ID:', formId);
+          toast({
+            title: 'Form saved successfully!',
+            description: `Your form has been saved with ID ${formId}.`,
+          });
+          navigate('/forms/edit/' + formId);
+        } else {
+          toast({
+            title: 'Error',
+            description: data.message || 'An unexpected error occurred. Please try again.',
+          });
+          console.error('Error:', data);
+        }
+      } catch (err) {
+        toast({
+          title: 'Network error',
+          description: 'Unable to reach the server. Please try again later.',
+        });
+        console.error('Fetch error:', err);
+      }
     }
   };
 
@@ -411,12 +522,9 @@ function FormBuilder() {
     ? findNodeById(state.schema.pages[0].elements, state.selectedNodeId) || undefined
     : undefined;
 
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Delete key to delete selected component
       if (e.key === 'Delete' && state.selectedNodeId && !state.isPreview) {
-        // Don't delete if user is typing in an input field
         const target = e.target as HTMLElement;
         if (
           target.tagName === 'INPUT' ||

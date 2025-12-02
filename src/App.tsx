@@ -48,6 +48,7 @@ const App = () => (
             />
 
             <Route path="/forms/new" element={<FormBuilder />} />
+
             <Route path="/forms/edit/:formId" element={<FormBuilder />} />
 
             <Route
