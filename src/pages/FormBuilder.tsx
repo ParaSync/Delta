@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { ArrowLeft, Eye, Save, Upload } from 'lucide-react';
+import { ArrowLeft, Eye, Save, Upload, X, Copy, Check } from 'lucide-react';
 import ComponentPalette from '@/components/form-builder/ComponentPalette';
 import FormCanvas from '@/components/form-builder/FormCanvas';
 import PropertiesPanel from '@/components/form-builder/PropertiesPanel';
@@ -203,6 +203,23 @@ function FormBuilder() {
     isPreview: false,
     history: [initialSchema],
     historyIndex: 0,
+  };
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [publishedLink, setPublishedLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handlePublishClick = () => {
+    setShowPublishModal(true);
+    setPublishedLink(null);
+    setCopied(false);
+  };
+
+  const handleCopyLink = () => {
+    if (publishedLink) {
+      navigator.clipboard.writeText(publishedLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const { user } = useAuth();
@@ -518,6 +535,40 @@ function FormBuilder() {
     }
   };
 
+  const publishForm = async () => {
+    if (isEditing) {
+      try {
+        const segments = location.pathname.split('/');
+        const formId = segments[segments.length - 1];
+        const response = await fetch(route('/api/form/edit/publish/' + formId), {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log('Successful publish:', response.status, data);
+          // Add these lines:
+          const dummyLink = `https://forms.example.com/view/${formId}`;
+          setPublishedLink(dummyLink);
+        } else {
+          console.error('Error:', response.status, data);
+          toast({
+            title: 'Error publishing form.',
+            description: 'Your form components are unavailable right now.',
+          });
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        toast({
+          title: 'Error publishing form.',
+          description: 'Network error occurred.',
+        });
+      }
+    }
+  };
+
   const selectedNode = state.selectedNodeId
     ? findNodeById(state.schema.pages[0].elements, state.selectedNodeId) || undefined
     : undefined;
@@ -586,7 +637,10 @@ function FormBuilder() {
               Save
             </button>
 
-            <button className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90">
+            <button
+              onClick={handlePublishClick}
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90"
+            >
               <Upload className="h-4 w-4" />
               Publish
             </button>
@@ -618,6 +672,86 @@ function FormBuilder() {
             </>
           )}
         </div>
+        {showPublishModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-semibold">
+                  {publishedLink ? 'Form Published!' : 'Publish Form'}
+                </h2>
+                <button
+                  onClick={() => setShowPublishModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                {!publishedLink ? (
+                  <>
+                    <p className="text-gray-600 mb-6">
+                      Are you sure you want to publish this form? Once published, it will be
+                      accessible to anyone with the link.
+                    </p>
+                    <div className="flex gap-3 justify-end">
+                      <button
+                        onClick={() => setShowPublishModal(false)}
+                        className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={publishForm}
+                        className="px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90"
+                      >
+                        Confirm Publish
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-gray-600 mb-4">
+                      Your form has been published successfully! Share this link with others:
+                    </p>
+                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-md border border-gray-200 mb-4">
+                      <input
+                        type="text"
+                        value={publishedLink}
+                        readOnly
+                        className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
+                      />
+                      <button
+                        onClick={handleCopyLink}
+                        className="flex items-center gap-1 px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="h-4 w-4 text-green-600" />
+                            <span className="text-green-600">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => setShowPublishModal(false)}
+                        className="px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DndProvider>
   );

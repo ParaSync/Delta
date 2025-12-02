@@ -154,6 +154,7 @@ type FormDashboard = Form & {
 
 function EmployeeDashboard() {
   const [forms, setForms] = useState<FormDashboard[]>([]);
+  const [countAnswered, setAnswered] = useState<number>(0);
   const { user } = useAuth();
 
   const fetchPublishedForms = async () => {
@@ -176,8 +177,29 @@ function EmployeeDashboard() {
     }
   };
 
+  const fetchAnsweredForms = async () => {
+    const response = await fetch(route('/api/form/answered/' + user.supaId), {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setAnswered(data.value);
+      console.log('Successful:', response.status, countAnswered);
+    } else {
+      console.error('Error:', response.status, data);
+      toast({
+        title: 'Error fetching count of submitted forms.',
+        description: 'Your submissions are unavailable right now.',
+      });
+    }
+  };
+
   useEffect(() => {
     fetchPublishedForms();
+    fetchAnsweredForms();
   }, []);
 
   return (
@@ -201,9 +223,7 @@ function EmployeeDashboard() {
             <MessageSquareMore className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {mockStats.employee.completedForms}
-            </div>
+            <div className="text-2xl font-bold text-primary">{countAnswered}</div>
             <p className="text-xs text-muted-foreground">All time total</p>
           </CardContent>
         </Card>
