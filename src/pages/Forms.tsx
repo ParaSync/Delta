@@ -10,6 +10,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
 import { useAuth } from '@/contexts/auth-context';
 import { useNavigate } from 'react-router-dom';
 import { route } from '@/firebase/client';
@@ -27,6 +39,8 @@ export default function Forms() {
   const [searchTerm, setSearchTerm] = useState('');
   const [forms, setForms] = useState<Form[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [formToDelete, setFormToDelete] = useState<Form | null>(null);
+
   const navigate = useNavigate();
 
   const fetchForms = async () => {
@@ -178,14 +192,14 @@ export default function Forms() {
                       Preview
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                      <Edit3 className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
                       <Copy className="mr-2 h-4 w-4" />
                       Duplicate
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600" onClick={() => deleteForm(form.id)}>
+
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={() => setFormToDelete(form)}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
@@ -243,6 +257,35 @@ export default function Forms() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <AlertDialog open={!!formToDelete} onOpenChange={() => setFormToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Form</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the form
+              <span className="font-semibold"> "{formToDelete?.title}"</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setFormToDelete(null)}>Cancel</AlertDialogCancel>
+
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => {
+                if (formToDelete) {
+                  deleteForm(formToDelete.id);
+                  setFormToDelete(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
