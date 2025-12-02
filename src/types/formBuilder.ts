@@ -1,5 +1,13 @@
 // Form Builder Schema Types for Delta
 
+export type Form = {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: Date;
+  status: 'published' | 'archived' | 'draft';
+};
+
 export type FormSchema = {
   title: string;
   pages: Page[];

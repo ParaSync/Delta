@@ -26,13 +26,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useNavigate } from 'react-router-dom';
 import { route } from '@/firebase/client';
 import { toast } from '@/hooks/use-toast';
-
-type Form = {
-  id: string;
-  user_id: string;
-  title: string;
-  created_at: Date;
-};
+import { Form } from '@/types/formBuilder';
 
 export default function Forms() {
   const { user } = useAuth();
@@ -44,7 +38,7 @@ export default function Forms() {
   const navigate = useNavigate();
 
   const fetchForms = async () => {
-    const response = await fetch(route('/api/form/list/' + user.supaId), {
+    const response = await fetch(route('/api/form/list/all/' + user.supaId), {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -53,9 +47,13 @@ export default function Forms() {
 
     if (response.ok) {
       setForms(data.value);
-      console.log('Successful:', response.status, forms);
+      console.log('Successful:', response.status, data.value);
     } else {
       console.error('Error:', response.status, data);
+      toast({
+        title: 'Error fetching forms.',
+        description: 'Your forms are unavailable right now.',
+      });
     }
   };
 

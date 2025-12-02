@@ -34,31 +34,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Watch Firebase auth state
   useEffect(() => {
+    const storedUser = localStorage.getItem('authUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser && user?.supaId) {
-        setUser({
-          id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || '',
-          supaId: user.supaId,
+      setTimeout(() => {
+        if (!firebaseUser) {
+          setUser(null);
+          localStorage.removeItem('authUser');
+          setIsLoading(false);
+          return;
+        }
+
+        setUser((prev) => {
+          const newUser = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            name: firebaseUser.displayName || '',
+            supaId: prev?.supaId || '',
+            role: prev?.role,
+          };
+          localStorage.setItem('authUser', JSON.stringify(newUser));
+          return newUser;
         });
-      } else if (firebaseUser) {
-        setUser({
-          id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          name: firebaseUser.displayName || '',
-          supaId: '',
-        });
-      } else {
-        setUser(null);
-      }
-      setIsLoading(false);
+
+        setIsLoading(false);
+      }, 3000);
     });
 
     return unsubscribe;
-  }, [user?.supaId]);
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
