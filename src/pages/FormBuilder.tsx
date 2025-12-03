@@ -579,9 +579,9 @@ function FormBuilder() {
 
         if (response.ok) {
           console.log('Successful publish:', response.status, data);
-          // Add these lines:
-          const dummyLink = `https://forms.example.com/view/${formId}`;
-          setPublishedLink(dummyLink);
+          // Generate the actual form answering link
+          const answerLink = `${window.location.origin}/forms/answer/${formId}`;
+          setPublishedLink(answerLink);
         } else {
           console.error('Error:', response.status, data);
           toast({
