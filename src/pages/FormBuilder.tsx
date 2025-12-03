@@ -317,7 +317,8 @@ function FormBuilder() {
   const togglePreview = () => {
     dispatch({ type: 'TOGGLE_PREVIEW' });
   };
-  // backend to frontend
+
+  // frontend to backend
   const cvtTypeToComponent = (component: Node, order: number): BackendNode | undefined => {
     const backendNode: BackendNode = {
       type: '',
@@ -331,8 +332,13 @@ function FormBuilder() {
 
     switch (component.type) {
       case 'text': {
-        backendNode.properties.placeholder = component.props.placeholder?.toString() || '';
         backendNode.type = 'text';
+        backendNode.name = '';
+        break;
+      }
+      case 'textarea': {
+        backendNode.properties.rows = component.props.rows?.toString() || '';
+        backendNode.type = 'textarea';
         backendNode.name = '';
         break;
       }
@@ -357,7 +363,10 @@ function FormBuilder() {
         break;
       }
       case 'select': {
-        // Select not yet implemented
+        backendNode.properties.options =
+          (component.props.options as { label: string }[])?.map((opt) => opt.label) || [];
+        backendNode.type = 'select';
+        backendNode.name = '';
         break;
       }
       case 'checkbox': {
@@ -394,17 +403,21 @@ function FormBuilder() {
     return backendNode;
   };
 
-  const cvtStateToBody = (components: BackendNode[]) => {
+  const cvtStateToBody = (): BackendNode[] => {
+    const components: BackendNode[] = [];
     const elements = state.schema.pages[0].elements;
     let count = 1;
     for (let index = 0; index < elements.length; index++) {
       const component = cvtTypeToComponent(elements[index], count);
+      console.log(component);
       if (component !== undefined) {
         components.push(component);
         count++;
       }
     }
+    return components;
   };
+
   /* eslint-disable */
   const cvtComponentToType = (backendNode: any): Node | undefined => {
     const nodeProps: Record<string, unknown> = {};
@@ -413,6 +426,8 @@ function FormBuilder() {
     // preserve other props
     if ('required' in source) nodeProps.required = Boolean(source.required);
     if ('label' in source) nodeProps.label = String(source.label);
+    if ('options' in source)
+      nodeProps.options = source.options.map((label) => ({ value: '', label })) || [];
 
     // Determine type
     let type: string | undefined;
@@ -426,6 +441,9 @@ function FormBuilder() {
         case 'text':
           type = 'text';
           break;
+        case 'textarea':
+          type = 'textarea';
+          break;
         case 'number':
           type = 'number';
           break;
@@ -434,6 +452,9 @@ function FormBuilder() {
           break;
         case 'checkbox':
           type = 'checkbox';
+          break;
+        case 'select':
+          type = 'select';
           break;
         case 'radio':
           type = 'radio';
@@ -495,16 +516,20 @@ function FormBuilder() {
   const handleSave = async () => {
     console.log('Saving form:', state.schema);
 
+    console.log(state.schema.pages[0].elements);
+
     const body = {
       title: state.schema.title,
       userId: user.supaId,
-      components: state.schema.pages[0].elements,
+      components: cvtStateToBody(),
     };
+
     console.log(body.components);
-    // console.log(state.schema.pages[0].elements);
-    // cvtStateToBody(body.components);
+    console.log(state.schema.pages[0].elements);
+
     console.log('Body: ', body);
     console.log('isEditing', isEditing);
+
     if (!isEditing) {
       try {
         const response = await fetch(route('/api/form/create'), {
@@ -522,7 +547,7 @@ function FormBuilder() {
             title: 'Form saved successfully!',
             description: `Your form has been saved with ID ${formId}.`,
           });
-          navigate('/forms/edit/' + formId);
+          navigate('/forms');
         } else {
           toast({
             title: 'Error',
