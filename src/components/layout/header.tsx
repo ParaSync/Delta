@@ -39,7 +39,11 @@ export function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+            <Button
+              variant="ghost"
+              aria-label="profile-button"
+              className="relative h-9 w-9 rounded-full"
+            >
               <Avatar className="h-9 w-9">
                 <AvatarFallback className="bg-primary/10 text-primary font-medium">
                   {user ? getInitials(user.name) : 'U'}

@@ -242,6 +242,10 @@ function FormBuilder() {
 
         const data = await response.json();
 
+        const formTitle = data.value?.[0]?.title || 'Untitled Form';
+
+        dispatch({ type: 'SET_TITLE', title: formTitle });
+
         if (response.ok) {
           console.log('Successful fetch response:', response.status, data);
           cvtBodyToState(data);
@@ -314,6 +318,7 @@ function FormBuilder() {
     dispatch({ type: 'TOGGLE_PREVIEW' });
   };
 
+  // frontend to backend
   const cvtTypeToComponent = (component: Node, order: number): BackendNode | undefined => {
     const backendNode: BackendNode = {
       type: '',
@@ -327,8 +332,13 @@ function FormBuilder() {
 
     switch (component.type) {
       case 'text': {
-        backendNode.properties.placeholder = component.props.placeholder?.toString() || '';
         backendNode.type = 'text';
+        backendNode.name = '';
+        break;
+      }
+      case 'textarea': {
+        backendNode.properties.rows = component.props.rows?.toString() || '';
+        backendNode.type = 'textarea';
         backendNode.name = '';
         break;
       }
@@ -353,7 +363,10 @@ function FormBuilder() {
         break;
       }
       case 'select': {
-        // Select not yet implemented
+        backendNode.properties.options =
+          (component.props.options as { label: string }[])?.map((opt) => opt.label) || [];
+        backendNode.type = 'select';
+        backendNode.name = '';
         break;
       }
       case 'checkbox': {
@@ -390,74 +403,84 @@ function FormBuilder() {
     return backendNode;
   };
 
-  const cvtStateToBody = (components: BackendNode[]) => {
+  const cvtStateToBody = (): BackendNode[] => {
+    const components: BackendNode[] = [];
     const elements = state.schema.pages[0].elements;
     let count = 1;
     for (let index = 0; index < elements.length; index++) {
       const component = cvtTypeToComponent(elements[index], count);
+      console.log(component);
       if (component !== undefined) {
         components.push(component);
         count++;
       }
     }
+    return components;
   };
+
   /* eslint-disable */
   const cvtComponentToType = (backendNode: any): Node | undefined => {
     const nodeProps: Record<string, unknown> = {};
-
     const source = backendNode.properties ?? backendNode;
 
+    // preserve other props
     if ('required' in source) nodeProps.required = Boolean(source.required);
     if ('label' in source) nodeProps.label = String(source.label);
-    if ('placeholder' in source) nodeProps.placeholder = String(source.placeholder);
-    if ('min' in source && source.min !== '') nodeProps.min = source.min;
-    if ('max' in source && source.max !== '') nodeProps.max = source.max;
-    if ('step' in source && source.step !== '' && source.step !== 0) nodeProps.step = source.step;
     if ('options' in source)
-      nodeProps.options = (source.options as string[]).map((opt) => ({ label: opt }));
+      nodeProps.options = source.options.map((label) => ({ value: '', label })) || [];
 
+    // Determine type
     let type: string | undefined;
+    let inputType = source.inputType || backendNode.type;
 
-    const inputType = source.inputType || backendNode.type;
-
-    switch (inputType) {
-      case 'text':
-        type = 'text';
-        break;
-      case 'number':
-        type = 'number';
-        break;
-      case 'datetime-local':
-        type = 'datetime';
-        break;
-      case 'checkbox':
-        type = 'checkbox';
-        break;
-      case 'radio':
-        type = 'radio';
-        break;
-      case 'button':
-        if (source.function === 'submit') type = 'submit';
-        else if (source.function === 'reset') type = 'reset';
-        break;
-      default:
-        console.warn('Unknown input type:', inputType);
-        return undefined;
+    // Map custom header types to text
+    if (inputType === 'h1' || inputType === 'h2' || inputType === 'h3') {
+      nodeProps.variant = inputType;
+    } else {
+      switch (inputType) {
+        case 'text':
+          type = 'text';
+          break;
+        case 'textarea':
+          type = 'textarea';
+          break;
+        case 'number':
+          type = 'number';
+          break;
+        case 'datetime-local':
+          type = 'datetime';
+          break;
+        case 'checkbox':
+          type = 'checkbox';
+          break;
+        case 'select':
+          type = 'select';
+          break;
+        case 'radio':
+          type = 'radio';
+          break;
+        case 'button':
+          if (source.function === 'submit') type = 'submit';
+          else if (source.function === 'reset') type = 'reset';
+          break;
+        default:
+          console.warn('Unknown input type:', inputType);
+          return undefined;
+      }
     }
 
-    if (!type) return undefined;
-
-    // Generate ID for each node
     return {
       id: generateId(),
       type,
       props: nodeProps,
     } as Node;
   };
+
   /* eslint-disable */
   const cvtBodyToState = useCallback((data: any) => {
     const components = Array.isArray(data.value) ? data.value : data?.components || [];
-    const title = data?.title || data?.value?.title || 'Untitled Form';
+    const title =
+      data?.title || (Array.isArray(data.value) && data.value[0]?.title) || 'Untitled Form';
 
     console.log('Loading form data:', { data, components, title });
 
@@ -493,13 +516,20 @@ function FormBuilder() {
   const handleSave = async () => {
     console.log('Saving form:', state.schema);
 
+    console.log(state.schema.pages[0].elements);
+
     const body = {
       title: state.schema.title,
       userId: user.supaId,
-      components: [] as BackendNode[],
+      components: cvtStateToBody(),
     };
-    cvtStateToBody(body.components);
+
+    console.log(body.components);
+    console.log(state.schema.pages[0].elements);
+
     console.log('Body: ', body);
+    console.log('isEditing', isEditing);
+
     if (!isEditing) {
       try {
         const response = await fetch(route('/api/form/create'), {
@@ -517,7 +547,7 @@ function FormBuilder() {
             title: 'Form saved successfully!',
             description: `Your form has been saved with ID ${formId}.`,
           });
-          navigate('/forms/edit/' + formId);
+          navigate('/forms');
         } else {
           toast({
             title: 'Error',
@@ -623,7 +653,11 @@ function FormBuilder() {
           <div className="flex items-center gap-2">
             <button
               onClick={togglePreview}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md ${state.isPreview ? 'bg-primary text-white' : 'border border-gray-300 hover:bg-gray-50'}`}
+              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md ${
+                state.isPreview
+                  ? 'bg-primary text-white'
+                  : 'border border-gray-300 hover:bg-gray-50'
+              }`}
             >
               <Eye className="h-4 w-4" />
               {state.isPreview ? 'Back to Builder' : 'Preview'}
