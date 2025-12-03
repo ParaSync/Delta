@@ -16,7 +16,7 @@ test('nonexistent email should not log in', async ({ page }) => {
   await email.waitFor({ state: 'visible' });
   await email.fill('neuron_never_register_this_email@example.com');
 
-  await page.getByPlaceholder('Invalid email or password. Please try again.').fill('testdummy');
+  await page.getByPlaceholder('Enter your password').fill('testdummy');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   // Expects page to have a heading with the name of Installation.
