@@ -242,6 +242,14 @@ function FormBuilder() {
 
         const data = await response.json();
 
+        console.log('Raw Data:', data);
+
+        const formTitle = data.value?.[0]?.title || 'Untitled Form';
+
+        console.log('Form Title:', formTitle);
+
+        dispatch({ type: 'SET_TITLE', title: formTitle });
+
         if (response.ok) {
           console.log('Successful fetch response:', response.status, data);
           cvtBodyToState(data);
@@ -404,60 +412,59 @@ function FormBuilder() {
   /* eslint-disable */
   const cvtComponentToType = (backendNode: any): Node | undefined => {
     const nodeProps: Record<string, unknown> = {};
-
     const source = backendNode.properties ?? backendNode;
 
+    // preserve other props
     if ('required' in source) nodeProps.required = Boolean(source.required);
     if ('label' in source) nodeProps.label = String(source.label);
-    if ('placeholder' in source) nodeProps.placeholder = String(source.placeholder);
-    if ('min' in source && source.min !== '') nodeProps.min = source.min;
-    if ('max' in source && source.max !== '') nodeProps.max = source.max;
-    if ('step' in source && source.step !== '' && source.step !== 0) nodeProps.step = source.step;
-    if ('options' in source)
-      nodeProps.options = (source.options as string[]).map((opt) => ({ label: opt }));
 
+    // Determine type
     let type: string | undefined;
+    let inputType = source.inputType || backendNode.type;
 
-    const inputType = source.inputType || backendNode.type;
-
-    switch (inputType) {
-      case 'text':
-        type = 'text';
-        break;
-      case 'number':
-        type = 'number';
-        break;
-      case 'datetime-local':
-        type = 'datetime';
-        break;
-      case 'checkbox':
-        type = 'checkbox';
-        break;
-      case 'radio':
-        type = 'radio';
-        break;
-      case 'button':
-        if (source.function === 'submit') type = 'submit';
-        else if (source.function === 'reset') type = 'reset';
-        break;
-      default:
-        console.warn('Unknown input type:', inputType);
-        return undefined;
+    // Map custom header types to text
+    if (inputType === 'h1' || inputType === 'h2' || inputType === 'h3') {
+      type = 'text';
+      nodeProps.variant = inputType; // optional, store the header level
+    } else {
+      switch (inputType) {
+        case 'text':
+          type = 'text';
+          break;
+        case 'number':
+          type = 'number';
+          break;
+        case 'datetime-local':
+          type = 'datetime';
+          break;
+        case 'checkbox':
+          type = 'checkbox';
+          break;
+        case 'radio':
+          type = 'radio';
+          break;
+        case 'button':
+          if (source.function === 'submit') type = 'submit';
+          else if (source.function === 'reset') type = 'reset';
+          break;
+        default:
+          console.warn('Unknown input type:', inputType);
+          return undefined;
+      }
     }
 
-    if (!type) return undefined;
-
-    // Generate ID for each node
     return {
       id: generateId(),
       type,
       props: nodeProps,
     } as Node;
   };
+
   /* eslint-disable */
   const cvtBodyToState = useCallback((data: any) => {
     const components = Array.isArray(data.value) ? data.value : data?.components || [];
-    const title = data?.title || data?.value?.title || 'Untitled Form';
+    const title =
+      data?.title || (Array.isArray(data.value) && data.value[0]?.title) || 'Untitled Form';
 
     console.log('Loading form data:', { data, components, title });
 
@@ -496,9 +503,11 @@ function FormBuilder() {
     const body = {
       title: state.schema.title,
       userId: user.supaId,
-      components: [] as BackendNode[],
+      components: state.schema.pages[0].elements,
     };
-    cvtStateToBody(body.components);
+    console.log(body.components);
+    // console.log(state.schema.pages[0].elements);
+    // cvtStateToBody(body.components);
     console.log('Body: ', body);
     if (!isEditing) {
       try {
@@ -623,7 +632,11 @@ function FormBuilder() {
           <div className="flex items-center gap-2">
             <button
               onClick={togglePreview}
-              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md ${state.isPreview ? 'bg-primary text-white' : 'border border-gray-300 hover:bg-gray-50'}`}
+              className={`flex items-center gap-2 px-4 py-2 text-sm rounded-md ${
+                state.isPreview
+                  ? 'bg-primary text-white'
+                  : 'border border-gray-300 hover:bg-gray-50'
+              }`}
             >
               <Eye className="h-4 w-4" />
               {state.isPreview ? 'Back to Builder' : 'Preview'}
