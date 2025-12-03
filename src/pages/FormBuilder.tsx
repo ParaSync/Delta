@@ -331,6 +331,14 @@ function FormBuilder() {
     };
 
     switch (component.type) {
+      case 'h1':
+      case 'h2':
+      case 'h3': {
+        backendNode.type = 'heading';
+        backendNode.properties.text = component.props.text;
+        backendNode.properties.heading = Number(component.type.substring(1));
+        break;
+      }
       case 'text': {
         backendNode.type = 'text';
         backendNode.name = '';
@@ -380,6 +388,13 @@ function FormBuilder() {
         backendNode.properties.options =
           (component.props.options as { label: string }[])?.map((opt) => opt.label) || [];
         backendNode.type = 'radio';
+        backendNode.name = '';
+        break;
+      }
+      case 'table': {
+        backendNode.properties.options = component.props.columns;
+        backendNode.properties.maxRows = component.props.maxRows;
+        backendNode.type = 'table';
         backendNode.name = '';
         break;
       }
@@ -434,10 +449,16 @@ function FormBuilder() {
     let inputType = source.inputType || backendNode.type;
 
     // Map custom header types to text
-    if (inputType === 'h1' || inputType === 'h2' || inputType === 'h3') {
+    if (inputType === 'heading') {
       nodeProps.variant = inputType;
+      nodeProps.text = source.text;
+      type = 'h' + source.heading;
     } else {
       switch (inputType) {
+        case 'input':
+          type = 'h' + source.heading;
+          nodeProps.text = source.text;
+          break;
         case 'text':
           type = 'text';
           break;
@@ -458,6 +479,11 @@ function FormBuilder() {
           break;
         case 'radio':
           type = 'radio';
+          break;
+        case 'table':
+          type = 'table';
+          nodeProps.columns = source.options;
+          nodeProps.maxRows = source.maxRows;
           break;
         case 'button':
           if (source.function === 'submit') type = 'submit';

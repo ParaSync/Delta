@@ -63,8 +63,8 @@ export const COMPONENT_CATEGORIES: ComponentCategory[] = [
         icon: 'Hash',
         defaultProps: { label: 'Number Field', placeholder: '0' },
       },
-      { type: 'date', label: 'Date', icon: 'Calendar', defaultProps: { label: 'Date Field' } },
-      { type: 'time', label: 'Time', icon: 'Clock', defaultProps: { label: 'Time Field' } },
+      // { type: 'date', label: 'Date', icon: 'Calendar', defaultProps: { label: 'Date Field' } },
+      // { type: 'time', label: 'Time', icon: 'Clock', defaultProps: { label: 'Time Field' } },
       {
         type: 'datetime',
         label: 'Date & Time',
@@ -77,15 +77,15 @@ export const COMPONENT_CATEGORIES: ComponentCategory[] = [
         icon: 'ChevronDown',
         defaultProps: { label: 'Select Field', options: [{ value: 'option1', label: 'Option 1' }] },
       },
-      {
-        type: 'multiselect',
-        label: 'Multi-select',
-        icon: 'CheckSquare',
-        defaultProps: {
-          label: 'Multi-select Field',
-          options: [{ value: 'option1', label: 'Option 1' }],
-        },
-      },
+      // {
+      //   type: 'multiselect',
+      //   label: 'Multi-select',
+      //   icon: 'CheckSquare',
+      //   defaultProps: {
+      //     label: 'Multi-select Field',
+      //     options: [{ value: 'option1', label: 'Option 1' }],
+      //   },
+      // },
       {
         type: 'radio',
         label: 'Radio Group',
@@ -98,12 +98,12 @@ export const COMPONENT_CATEGORIES: ComponentCategory[] = [
         icon: 'Square',
         defaultProps: { label: 'Checkbox Field' },
       },
-      {
-        type: 'file',
-        label: 'File Upload',
-        icon: 'Upload',
-        defaultProps: { label: 'File Upload', accept: '*/*' },
-      },
+      // {
+      //   type: 'file',
+      //   label: 'File Upload',
+      //   icon: 'Upload',
+      //   defaultProps: { label: 'File Upload', accept: '*/*' },
+      // },
     ],
   },
   {
@@ -124,24 +124,24 @@ export const COMPONENT_CATEGORIES: ComponentCategory[] = [
       },
     ],
   },
-  {
-    name: 'Layout',
-    items: [
-      { type: 'divider', label: 'Divider', icon: 'Minus', defaultProps: {} },
-      { type: 'pagebreak', label: 'Page Break', icon: 'FileBreak', defaultProps: {} },
-    ],
-  },
-  {
-    name: 'Images',
-    items: [
-      {
-        type: 'image',
-        label: 'Image',
-        icon: 'Image',
-        defaultProps: { src: '', alt: 'Image', objectFit: 'cover' },
-      },
-    ],
-  },
+  // {
+  //   name: 'Layout',
+  //   items: [
+  //     { type: 'divider', label: 'Divider', icon: 'Minus', defaultProps: {} },
+  //     { type: 'pagebreak', label: 'Page Break', icon: 'FileBreak', defaultProps: {} },
+  //   ],
+  // },
+  // {
+  //   name: 'Images',
+  //   items: [
+  //     {
+  //       type: 'image',
+  //       label: 'Image',
+  //       icon: 'Image',
+  //       defaultProps: { src: '', alt: 'Image', objectFit: 'cover' },
+  //     },
+  //   ],
+  // },
   {
     name: 'Actions',
     items: [

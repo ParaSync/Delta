@@ -41,53 +41,140 @@ function convertBackendToNode(component: BackendComponent): Node | null {
   if ('max' in source && source.max !== '') props.max = source.max;
   if ('step' in source && source.step !== '' && source.step !== 0) props.step = source.step;
   if ('options' in source) {
+    // Normalize options to always have { label, value } format
     props.options = Array.isArray(source.options)
-      ? (source.options as string[]).map((opt) => ({ label: opt }))
+      ? (source.options as Array<string | { label: string; value?: string }>).map((opt) => {
+          if (typeof opt === 'string') {
+            return { label: opt, value: opt };
+          }
+          // Object with label, ensure value exists (default to label if missing)
+          return { label: opt.label, value: opt.value ?? opt.label };
+        })
       : [];
   }
 
-  // Determine the node type based on backend inputType or type
+  // Determine the node type based on backend inputType, component type, or infer from name/properties
   const inputType = source.inputType || component.type;
   let nodeType: NodeType | undefined;
 
-  switch (inputType) {
-    case 'text':
-      nodeType = 'text';
-      break;
-    case 'number':
-      nodeType = 'number';
-      break;
-    case 'datetime-local':
-      nodeType = 'datetime';
-      break;
-    case 'checkbox':
-      nodeType = 'checkbox';
-      break;
-    case 'radio':
-      nodeType = 'radio';
-      break;
-    case 'button':
-      if (source.function === 'submit') nodeType = 'submit';
-      else if (source.function === 'reset') nodeType = 'reset';
-      break;
-    case 'select':
-      nodeType = 'select';
-      break;
-    case 'textarea':
-      nodeType = 'textarea';
-      break;
-    case 'file':
-      nodeType = 'file';
-      break;
-    case 'date':
-      nodeType = 'date';
-      break;
-    case 'time':
-      nodeType = 'time';
-      break;
-    default:
-      console.warn('Unknown input type:', inputType);
-      return null;
+  // Helper to infer type from component name or label
+  const inferTypeFromName = (name: string, label?: string): NodeType | undefined => {
+    const nameLower = name.toLowerCase();
+    const labelLower = (label || '').toLowerCase();
+
+    if (nameLower.includes('submit') || labelLower === 'submit') return 'submit';
+    if (nameLower.includes('reset') || labelLower === 'reset') return 'reset';
+    if (
+      nameLower.includes('checkbox') ||
+      nameLower.includes('agree') ||
+      nameLower.includes('terms') ||
+      nameLower.includes('accept')
+    )
+      return 'checkbox';
+    if (nameLower.includes('radio')) return 'radio';
+    if (nameLower.includes('select') || nameLower.includes('dropdown')) return 'select';
+    if (
+      nameLower.includes('textarea') ||
+      nameLower.includes('message') ||
+      nameLower.includes('description')
+    )
+      return 'textarea';
+    if (nameLower.includes('email')) return 'text';
+    if (nameLower.includes('phone') || nameLower.includes('age') || nameLower.includes('number'))
+      return 'number';
+    if (nameLower.includes('date')) return 'date';
+    if (nameLower.includes('time')) return 'time';
+    if (nameLower.includes('file') || nameLower.includes('upload')) return 'file';
+    return undefined;
+  };
+
+  if (source.inputType === 'heading') {
+    props.text = source.text;
+    nodeType = 'h' + source.heading;
+  } else {
+    switch (inputType) {
+      case 'text':
+        nodeType = 'text';
+        break;
+      case 'number':
+        nodeType = 'number';
+        break;
+      case 'datetime-local':
+        nodeType = 'datetime';
+        break;
+      case 'checkbox':
+        nodeType = 'checkbox';
+        break;
+      case 'radio':
+        nodeType = 'radio';
+        break;
+      case 'button':
+        if (
+          source.function === 'submit' ||
+          (source.label as string)?.toLowerCase().includes('submit')
+        )
+          nodeType = 'submit';
+        else if (
+          source.function === 'reset' ||
+          (source.label as string)?.toLowerCase().includes('reset')
+        )
+          nodeType = 'reset';
+        else nodeType = 'submit'; // Default buttons to submit
+        break;
+      case 'select':
+        nodeType = 'select';
+        break;
+      case 'textarea':
+        nodeType = 'textarea';
+        break;
+      case 'file':
+        nodeType = 'file';
+        break;
+      case 'date':
+        nodeType = 'date';
+        break;
+      case 'time':
+        nodeType = 'time';
+        break;
+      case 'input':
+        // Backend normalized type to 'input' - try to infer actual type
+        // First, check if it has options - this is more reliable than name inference
+        if (source.inputType === 'heading') {
+          props.text = source.text;
+          nodeType = 'h' + source.heading;
+        } else if (Array.isArray(source.options) && source.options.length > 0) {
+          // Multiple options: check name to determine if select, radio, or checkbox
+          const nameLower = component.name.toLowerCase();
+          if (
+            nameLower.includes('select') ||
+            nameLower.includes('department') ||
+            nameLower.includes('dropdown') ||
+            nameLower.includes('choose')
+          ) {
+            nodeType = 'select';
+          } else if (nameLower.includes('radio')) {
+            nodeType = 'radio';
+          } else if (
+            nameLower.includes('checkbox') ||
+            nameLower.includes('agree') ||
+            nameLower.includes('terms') ||
+            nameLower.includes('accept')
+          ) {
+            nodeType = 'checkbox';
+          } else {
+            // Default options to select (dropdown) for better UX
+            nodeType = 'select';
+          }
+        } else {
+          // No options - infer from name or default to text
+          nodeType = inferTypeFromName(component.name, source.label as string) || 'text';
+        }
+        break;
+      default:
+        console.warn('Unknown input type:', inputType);
+        // Try to infer from name as last resort
+        nodeType = inferTypeFromName(component.name, source.label as string) || 'text';
+    }
   }
 
   if (!nodeType) return null;
@@ -142,10 +229,20 @@ function AnswerForm() {
         form.components.forEach((component) => {
           const node = convertBackendToNode(component);
           if (node) {
+            // Store the order from properties for sorting
+            (node as Node & { order?: number }).order =
+              (component.properties?.order as number) ?? component.order ?? 0;
             convertedNodes.push(node);
             // Map frontend node ID to backend component ID for submission
             idMap.set(node.id, component.id);
           }
+        });
+
+        // Sort nodes by order before setting state
+        convertedNodes.sort((a, b) => {
+          const orderA = (a as Node & { order?: number }).order ?? 0;
+          const orderB = (b as Node & { order?: number }).order ?? 0;
+          return orderA - orderB;
         });
 
         setNodes(convertedNodes);
@@ -383,7 +480,9 @@ function AnswerForm() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Form not found</h2>
-          <p className="text-gray-600">The form you're looking for doesn't exist or is unavailable.</p>
+          <p className="text-gray-600">
+            The form you're looking for doesn't exist or is unavailable.
+          </p>
         </div>
       </div>
     );
@@ -415,9 +514,7 @@ function AnswerForm() {
           </form>
         </div>
 
-        <p className="text-center text-gray-500 text-sm mt-4">
-          Powered by Delta Forms
-        </p>
+        <p className="text-center text-gray-500 text-sm mt-4">Powered by Delta Forms</p>
       </div>
     </div>
   );
