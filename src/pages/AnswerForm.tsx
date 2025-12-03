@@ -136,6 +136,11 @@ function convertBackendToNode(component: BackendComponent): Node | null {
       case 'time':
         nodeType = 'time';
         break;
+      case 'table':
+        nodeType = 'table';
+        props.columns = source.options;
+        props.maxRows = source.maxRows;
+        break;
       case 'input':
         // Backend normalized type to 'input' - try to infer actual type
         // First, check if it has options - this is more reliable than name inference
