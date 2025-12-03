@@ -60,7 +60,10 @@ function BaseInputField({
 
 export function TextField({ node, onUpdateNode }: BaseFieldProps) {
   return (
-    <BaseInputField node={node} type="text" defaultLabel="Text Field" onUpdateNode={onUpdateNode} />
+    <div className="space-y-2">
+      <BaseInputField node={node} type="text" defaultLabel="Text Field" onUpdateNode={onUpdateNode} />
+      <p className="text-xs text-gray-500">Max 1000 characters</p>
+    </div>
   );
 }
 
@@ -76,25 +79,152 @@ export function NumberField({ node, onUpdateNode }: BaseFieldProps) {
 }
 
 export function DateField({ node, onUpdateNode }: BaseFieldProps) {
+  const { props } = node;
+  const fieldId = `builder-field-${node.id}`;
+  const labelText = toReactString(props.label || 'Date Field');
+
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
+
   return (
-    <BaseInputField node={node} type="date" defaultLabel="Date Field" onUpdateNode={onUpdateNode} />
+    <div className="space-y-2">
+      <div className="flex items-center">
+        <InlineEdit
+          value={labelText}
+          onChange={handleLabelChange}
+          as="label"
+          className="text-sm font-medium"
+          placeholder="Date Field"
+          disabled={!onUpdateNode}
+        />
+        {Boolean(props.required) && (
+          <span className="text-red-600 ml-0.5" aria-label="required">
+            *
+          </span>
+        )}
+      </div>
+      <input
+        id={fieldId}
+        type="date"
+        min={props.minDate ? String(props.minDate) : undefined}
+        max={props.maxDate ? String(props.maxDate) : undefined}
+        aria-label={labelText}
+        aria-required={Boolean(props.required)}
+        data-testid="builder-input-date"
+        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white pointer-events-none"
+        disabled
+      />
+      {(props.minDate || props.maxDate) && (
+        <p className="text-xs text-gray-500">
+          {props.minDate && props.maxDate
+            ? `${props.minDate} to ${props.maxDate}`
+            : props.minDate
+              ? `From ${props.minDate}`
+              : `Until ${props.maxDate}`}
+        </p>
+      )}
+    </div>
   );
 }
 
 export function TimeField({ node, onUpdateNode }: BaseFieldProps) {
+  const { props } = node;
+  const fieldId = `builder-field-${node.id}`;
+  const labelText = toReactString(props.label || 'Time Field');
+
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
+
   return (
-    <BaseInputField node={node} type="time" defaultLabel="Time Field" onUpdateNode={onUpdateNode} />
+    <div className="space-y-2">
+      <div className="flex items-center">
+        <InlineEdit
+          value={labelText}
+          onChange={handleLabelChange}
+          as="label"
+          className="text-sm font-medium"
+          placeholder="Time Field"
+          disabled={!onUpdateNode}
+        />
+        {Boolean(props.required) && (
+          <span className="text-red-600 ml-0.5" aria-label="required">
+            *
+          </span>
+        )}
+      </div>
+      <input
+        id={fieldId}
+        type="time"
+        min={props.minTime ? String(props.minTime) : undefined}
+        max={props.maxTime ? String(props.maxTime) : undefined}
+        aria-label={labelText}
+        aria-required={Boolean(props.required)}
+        data-testid="builder-input-time"
+        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white pointer-events-none"
+        disabled
+      />
+      {(props.minTime || props.maxTime) && (
+        <p className="text-xs text-gray-500">
+          {props.minTime && props.maxTime
+            ? `${props.minTime} to ${props.maxTime}`
+            : props.minTime
+              ? `From ${props.minTime}`
+              : `Until ${props.maxTime}`}
+        </p>
+      )}
+    </div>
   );
 }
 
 export function DateTimeField({ node, onUpdateNode }: BaseFieldProps) {
+  const { props } = node;
+  const fieldId = `builder-field-${node.id}`;
+  const labelText = toReactString(props.label || 'Date & Time Field');
+
+  const handleLabelChange = (value: string) => {
+    onUpdateNode?.(node.id, { label: value });
+  };
+
   return (
-    <BaseInputField
-      node={node}
-      type="datetime-local"
-      defaultLabel="Date & Time Field"
-      onUpdateNode={onUpdateNode}
-    />
+    <div className="space-y-2">
+      <div className="flex items-center">
+        <InlineEdit
+          value={labelText}
+          onChange={handleLabelChange}
+          as="label"
+          className="text-sm font-medium"
+          placeholder="Date & Time Field"
+          disabled={!onUpdateNode}
+        />
+        {Boolean(props.required) && (
+          <span className="text-red-600 ml-0.5" aria-label="required">
+            *
+          </span>
+        )}
+      </div>
+      <input
+        id={fieldId}
+        type="datetime-local"
+        min={props.minDateTime ? String(props.minDateTime) : undefined}
+        max={props.maxDateTime ? String(props.maxDateTime) : undefined}
+        aria-label={labelText}
+        aria-required={Boolean(props.required)}
+        data-testid="builder-input-datetime"
+        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white pointer-events-none"
+        disabled
+      />
+      {(props.minDateTime || props.maxDateTime) && (
+        <p className="text-xs text-gray-500">
+          {props.minDateTime && props.maxDateTime
+            ? `${String(props.minDateTime).replace('T', ' ')} to ${String(props.maxDateTime).replace('T', ' ')}`
+            : props.minDateTime
+              ? `From ${String(props.minDateTime).replace('T', ' ')}`
+              : `Until ${String(props.maxDateTime).replace('T', ' ')}`}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -135,6 +265,7 @@ export function TextareaField({ node, onUpdateNode }: BaseFieldProps) {
         className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white resize-none pointer-events-none"
         disabled
       />
+      <p className="text-xs text-gray-500">Max 1000 characters</p>
     </div>
   );
 }

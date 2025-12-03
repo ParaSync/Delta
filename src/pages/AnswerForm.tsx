@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from '../hooks/use-toast';
 import { route } from '@/firebase/client';
 import { getRendererFieldComponent } from '@/components/form-builder/components/renderer';
+import { TableField } from '@/components/form-builder/components/renderer/OtherComponents';
 import type { Node, NodeType } from '../types/formBuilder';
 import { generateId } from '../utils/formBuilder';
 
@@ -40,6 +41,15 @@ function convertBackendToNode(component: BackendComponent): Node | null {
   if ('min' in source && source.min !== '') props.min = source.min;
   if ('max' in source && source.max !== '') props.max = source.max;
   if ('step' in source && source.step !== '' && source.step !== 0) props.step = source.step;
+  // Map date/time constraint properties
+  if ('minDate' in source && source.minDate) props.minDate = String(source.minDate);
+  if ('maxDate' in source && source.maxDate) props.maxDate = String(source.maxDate);
+  if ('minTime' in source && source.minTime) props.minTime = String(source.minTime);
+  if ('maxTime' in source && source.maxTime) props.maxTime = String(source.maxTime);
+  if ('minDateTime' in source && source.minDateTime) props.minDateTime = String(source.minDateTime);
+  if ('maxDateTime' in source && source.maxDateTime) props.maxDateTime = String(source.maxDateTime);
+  // Map visibility property (hidden fields)
+  if ('visibleInPreview' in source) props.visibleInPreview = source.visibleInPreview;
   if ('options' in source) {
     // Normalize options to always have { label, value } format
     props.options = Array.isArray(source.options)
@@ -58,20 +68,28 @@ function convertBackendToNode(component: BackendComponent): Node | null {
   let nodeType: NodeType | undefined;
 
   // Helper to infer type from component name or label
-  const inferTypeFromName = (name: string, label?: string): NodeType | undefined => {
+  // NOTE: Only return 'checkbox' if we know there are options, otherwise backend validation fails
+  const inferTypeFromName = (
+    name: string,
+    label?: string,
+    hasOptions?: boolean
+  ): NodeType | undefined => {
     const nameLower = name.toLowerCase();
     const labelLower = (label || '').toLowerCase();
 
     if (nameLower.includes('submit') || labelLower === 'submit') return 'submit';
     if (nameLower.includes('reset') || labelLower === 'reset') return 'reset';
-    if (
-      nameLower.includes('checkbox') ||
-      nameLower.includes('agree') ||
-      nameLower.includes('terms') ||
-      nameLower.includes('accept')
-    )
-      return 'checkbox';
-    if (nameLower.includes('radio')) return 'radio';
+    // Only infer checkbox/radio if we know there are options
+    if (hasOptions) {
+      if (
+        nameLower.includes('checkbox') ||
+        nameLower.includes('agree') ||
+        nameLower.includes('terms') ||
+        nameLower.includes('accept')
+      )
+        return 'checkbox';
+      if (nameLower.includes('radio')) return 'radio';
+    }
     if (nameLower.includes('select') || nameLower.includes('dropdown')) return 'select';
     if (
       nameLower.includes('textarea') ||
@@ -88,6 +106,9 @@ function convertBackendToNode(component: BackendComponent): Node | null {
     return undefined;
   };
 
+  // Check if component has valid options
+  const hasValidOptions = Array.isArray(source.options) && source.options.length > 0;
+
   if (source.inputType === 'heading') {
     props.text = source.text;
     nodeType = 'h' + source.heading;
@@ -103,10 +124,24 @@ function convertBackendToNode(component: BackendComponent): Node | null {
         nodeType = 'datetime';
         break;
       case 'checkbox':
+        // Always render as checkbox
         nodeType = 'checkbox';
+        if (!hasValidOptions) {
+          // Create a single option using the label so it renders properly
+          const labelValue = String(source.label || 'Yes');
+          props.options = [{ label: labelValue, value: labelValue }];
+          // Mark as synthetic - backend has no options so we can't submit this
+          props.isSingleCheckbox = true;
+          props.hasNoBackendOptions = true;
+        }
         break;
       case 'radio':
-        nodeType = 'radio';
+        // Only render as radio if there are valid options
+        if (hasValidOptions) {
+          nodeType = 'radio';
+        } else {
+          nodeType = 'text';
+        }
         break;
       case 'button':
         if (
@@ -147,7 +182,7 @@ function convertBackendToNode(component: BackendComponent): Node | null {
         if (source.inputType === 'heading') {
           props.text = source.text;
           nodeType = 'h' + source.heading;
-        } else if (Array.isArray(source.options) && source.options.length > 0) {
+        } else if (hasValidOptions) {
           // Multiple options: check name to determine if select, radio, or checkbox
           const nameLower = component.name.toLowerCase();
           if (
@@ -172,13 +207,14 @@ function convertBackendToNode(component: BackendComponent): Node | null {
           }
         } else {
           // No options - infer from name or default to text
-          nodeType = inferTypeFromName(component.name, source.label as string) || 'text';
+          // Pass hasValidOptions=false so checkbox/radio won't be inferred without options
+          nodeType = inferTypeFromName(component.name, source.label as string, false) || 'text';
         }
         break;
       default:
         console.warn('Unknown input type:', inputType);
         // Try to infer from name as last resort
-        nodeType = inferTypeFromName(component.name, source.label as string) || 'text';
+        nodeType = inferTypeFromName(component.name, source.label as string, hasValidOptions) || 'text';
     }
   }
 
@@ -335,6 +371,12 @@ function AnswerForm() {
       // Skip non-input types
       if (node.type === 'submit' || node.type === 'reset') return;
 
+      // Skip checkboxes that have no backend options (can't be validated by backend)
+      if (node.type === 'checkbox' && node.props.hasNoBackendOptions) {
+        console.warn(`Skipping checkbox "${node.props.label}" - no options defined in backend`);
+        return;
+      }
+
       const backendId = componentIdMap.get(node.id);
       if (backendId) {
         const value = values[node.id];
@@ -385,6 +427,31 @@ function AnswerForm() {
     setErrors({});
   };
 
+  // Table-specific handlers
+  const handleTableAddRow = (fieldKey: string, columns: Array<{ key: string }>) => {
+    const currentRows = (values[fieldKey] as Array<Record<string, unknown>>) || [];
+    const newRow: Record<string, unknown> = {};
+    columns.forEach((col) => {
+      newRow[col.key] = '';
+    });
+    updateValue(fieldKey, [...currentRows, newRow]);
+  };
+
+  const handleTableRemoveRow = (fieldKey: string, rowIndex: number) => {
+    const currentRows = (values[fieldKey] as Array<Record<string, unknown>>) || [];
+    const newRows = currentRows.filter((_, i) => i !== rowIndex);
+    updateValue(fieldKey, newRows);
+  };
+
+  const handleTableUpdateCell = (fieldKey: string, rowIndex: number, colKey: string, value: unknown) => {
+    const currentRows = (values[fieldKey] as Array<Record<string, unknown>>) || [];
+    const newRows = [...currentRows];
+    if (newRows[rowIndex]) {
+      newRows[rowIndex] = { ...newRows[rowIndex], [colKey]: value };
+    }
+    updateValue(fieldKey, newRows);
+  };
+
   const renderNode = (node: Node): React.ReactNode => {
     const fieldKey = node.id;
     const error = errors[fieldKey];
@@ -416,6 +483,24 @@ function AnswerForm() {
         >
           {(node.props.label as string) || 'Reset'}
         </button>
+      );
+    }
+
+    // Special handling for table fields - need to pass table-specific handlers
+    if (node.type === 'table') {
+      const columns = (node.props.columns as Array<{ key: string; label: string }>) || [];
+      return (
+        <TableField
+          node={node}
+          value={currentValue}
+          error={error}
+          onChange={(val) => updateValue(fieldKey, val)}
+          onAddRow={() => handleTableAddRow(fieldKey, columns)}
+          onRemoveRow={(rowIndex: number) => handleTableRemoveRow(fieldKey, rowIndex)}
+          onUpdateCell={(rowIndex: number, colKey: string, value: unknown) => 
+            handleTableUpdateCell(fieldKey, rowIndex, colKey, value)
+          }
+        />
       );
     }
 
@@ -493,6 +578,9 @@ function AnswerForm() {
     );
   }
 
+  // Filter out hidden nodes (visibleInPreview === false)
+  const visibleNodes = nodes.filter((node) => node.props.visibleInPreview !== false);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
@@ -500,14 +588,14 @@ function AnswerForm() {
           <h1 className="text-3xl font-bold text-gray-900 mb-6">{formData.title}</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {nodes.map((node) => (
+            {visibleNodes.map((node) => (
               <div key={node.id} className="form-field">
                 {renderNode(node)}
               </div>
             ))}
 
             {/* Fallback submit button if no submit button in form */}
-            {!nodes.some((n) => n.type === 'submit') && (
+            {!visibleNodes.some((n) => n.type === 'submit') && (
               <button
                 type="submit"
                 disabled={submitting}
