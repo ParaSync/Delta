@@ -459,8 +459,8 @@ test('multiple input for table functionality', async ({ page }) => {
   await expect(page.getByTestId('table-cell-1-col2')).toHaveValue('input4');
 });
 
-test('multiple input for table functionality', async ({ page }) => {
-  const formName = `Multiple Input Form ${Date.now()}`;
+test('form submission functionality', async ({ page }) => {
+  const formName = `Submission Form ${Date.now()}`;
 
   await page.goto('http://localhost:4173/login');
   await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
@@ -470,9 +470,12 @@ test('multiple input for table functionality', async ({ page }) => {
   await page.getByRole('link', { name: 'Forms' }).click();
   await page.getByRole('button', { name: 'Create New Form' }).click();
 
-  await page.getByTestId('palette-component-table').click();
+  await page.getByTestId('palette-component-text').click();
+  await page.getByTestId('palette-component-number').click();
+  await page.getByTestId('palette-component-datetime').click();
+  await page.getByTestId('property-label').fill('Sample Form');
 
-  const titleInput = page.getByPlaceholder('Untitled form');
+  const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
   await titleInput.fill(formName);
   await titleInput.press('Enter');
 
@@ -481,13 +484,11 @@ test('multiple input for table functionality', async ({ page }) => {
 
   const formCard = page
     .locator('div.bg-card')
-    .filter({ has: page.getByRole('heading', { name: formName }) });
+    .filter({ has: page.getByRole('heading', { name: formName, exact: true }) });
 
-  await expect(formCard).toBeVisible();
+  await expect(formCard).toBeVisible({ timeout: 10000 });
 
   await formCard.getByRole('button', { name: 'Edit Form' }).click();
-
-  const formCanvas = page.getByRole('list', { name: 'Form components' });
 
   await page.getByRole('button', { name: 'Publish' }).click();
   await page.getByRole('button', { name: 'Confirm Publish' }).click();
@@ -498,33 +499,130 @@ test('multiple input for table functionality', async ({ page }) => {
     .last();
 
   const shareInput = shareLinkContainer.locator('input');
-
   await expect(shareInput).not.toBeEmpty();
   const publicUrl = await shareInput.inputValue();
 
   await page.goto(publicUrl);
   await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
 
-  await page.getByRole('heading', { name: formName }).click();
+  await page.getByTestId('input-text').fill('sampleInput');
+  await page.getByTestId('input-number').fill('123456789');
+  await page.getByTestId('input-datetime').fill('2008-02-10T00:00');
 
-  await page.getByTestId('table-add-row').click();
-  await page.getByTestId('table-add-row').click();
+  await page.getByRole('button', { name: 'Submit' }).click();
+  await expect(page.getByRole('alert', { name: 'toast-notification' })).toBeVisible();
+});
 
-  await expect(page.getByTestId('table-cell-0-col1')).toBeVisible();
+test('verify validation error', async ({ page }) => {
+  const formName = `Validation Form ${Date.now()}`;
 
-  await expect(page.getByTestId('table-cell-0-col2')).toBeVisible();
+  await page.goto('http://localhost:4173/login');
 
-  await page.getByTestId('table-cell-0-col1').fill('input1');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
 
-  await page.getByTestId('table-cell-0-col2').fill('input2');
+  await page.getByRole('link', { name: 'Forms' }).click();
+  await page.getByRole('button', { name: 'Create New Form' }).click();
 
-  await page.getByTestId('table-cell-1-col1').fill('input3');
+  await page.getByTestId('palette-component-text').click();
+  await page.getByTestId('property-required').check();
+  await page.getByTestId('palette-component-number').click();
+  await page.getByTestId('palette-component-datetime').click();
+  await page.getByTestId('property-label').fill('Sample Form');
 
-  await page.getByTestId('table-cell-1-col2').fill('input4');
+  const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
+  await titleInput.fill(formName);
+  await titleInput.press('Enter');
 
-  await expect(page.getByTestId('table-cell-0-col1')).toHaveValue('input1');
-  await expect(page.getByTestId('table-cell-0-col2')).toHaveValue('input2');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('link', { name: 'Forms' }).click();
 
-  await expect(page.getByTestId('table-cell-1-col1')).toHaveValue('input3');
-  await expect(page.getByTestId('table-cell-1-col2')).toHaveValue('input4');
+  const formCard = page
+    .locator('div.bg-card')
+    .filter({ has: page.getByRole('heading', { name: formName, exact: true }) });
+
+  await expect(formCard).toBeVisible({ timeout: 10000 });
+
+  await formCard.getByRole('button', { name: 'Edit Form' }).click();
+
+  await page.getByRole('button', { name: 'Publish' }).click();
+  await page.getByRole('button', { name: 'Confirm Publish' }).click();
+
+  const shareLinkContainer = page
+    .locator('div')
+    .filter({ has: page.getByRole('button', { name: 'Copy' }) })
+    .last();
+
+  const shareInput = shareLinkContainer.locator('input');
+  await expect(shareInput).not.toBeEmpty();
+  const publicUrl = await shareInput.inputValue();
+
+  await page.goto(publicUrl);
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+
+  await page.getByTestId('input-number').fill('123456789');
+  await page.getByTestId('input-datetime').fill('2008-02-10T00:00');
+
+  await page.getByRole('button', { name: 'Submit' }).click();
+  await expect(page.getByRole('alert', { name: 'toast-notification' })).not.toBeVisible();
+});
+
+test('Reset button must clear all inputs', async ({ page }) => {
+  const formName = `Reset Form ${Date.now()}`;
+
+  await page.goto('http://localhost:4173/login');
+
+  await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await page.getByRole('link', { name: 'Forms' }).click();
+  await page.getByRole('button', { name: 'Create New Form' }).click();
+
+  await page.getByTestId('palette-component-text').click();
+  await page.getByTestId('palette-component-number').click();
+  await page.getByTestId('palette-component-datetime').click();
+  await page.getByTestId('palette-component-textarea').click();
+  await page.getByTestId('palette-component-reset').click();
+
+  const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
+  await titleInput.fill(formName);
+  await titleInput.press('Enter');
+
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('link', { name: 'Forms' }).click();
+
+  const formCard = page
+    .locator('div.bg-card')
+    .filter({ has: page.getByRole('heading', { name: formName, exact: true }) });
+
+  await expect(formCard).toBeVisible({ timeout: 10000 });
+
+  await formCard.getByRole('button', { name: 'Edit Form' }).click();
+
+  await page.getByRole('button', { name: 'Publish' }).click();
+  await page.getByRole('button', { name: 'Confirm Publish' }).click();
+
+  const shareLinkContainer = page
+    .locator('div')
+    .filter({ has: page.getByRole('button', { name: 'Copy' }) })
+    .last();
+
+  const shareInput = shareLinkContainer.locator('input');
+  await expect(shareInput).not.toBeEmpty();
+  const publicUrl = await shareInput.inputValue();
+
+  await page.goto(publicUrl);
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+
+  await page.getByTestId('input-text').fill('sampleInput');
+  await page.getByTestId('input-number').fill('123456789');
+  await page.getByTestId('input-datetime').fill('2008-02-10T00:00');
+  await page.getByTestId('input-textarea').fill('helloworld');
+  await page.getByRole('button', { name: 'Reset' }).click();
+  await expect(page.getByTestId('input-text')).toHaveValue('');
+  await expect(page.getByTestId('input-number')).toHaveValue('');
+  await expect(page.getByTestId('input-datetime')).toHaveValue('');
+  await expect(page.getByTestId('input-textarea')).toHaveValue('');
 });
