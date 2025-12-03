@@ -16,7 +16,7 @@ test('nonexistent email should not log in', async ({ page }) => {
   await email.waitFor({ state: 'visible' });
   await email.fill('neuron_never_register_this_email@example.com');
 
-  await page.getByPlaceholder('Enter your password').fill('testdummy');
+  await page.getByPlaceholder('Invalid email or password. Please try again.').fill('testdummy');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   // Expects page to have a heading with the name of Installation.
@@ -38,7 +38,7 @@ test('incorrect password should not be logged in', async ({ page }) => {
   await signInButton.waitFor({ state: 'visible' });
   await signInButton.click();
 
-  const failedError = page.getByText('Invalid email or password').nth(0);
+  const failedError = page.getByText('Invalid email or password. Please try again.').nth(0);
   await expect(failedError).toBeVisible();
 });
 
