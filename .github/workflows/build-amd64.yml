@@ -1,4 +1,4 @@
-name: Build Docker Container
+name: Build Docker Container (AMD64)
 on:
   workflow_run:
     workflows: ["Tests"]
@@ -32,4 +32,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: parasync/delta-frontend:latest
+          tags: ghcr.io/parasync/delta-backend:${{ github.event.workflow_run.head_branch }}-amd64
