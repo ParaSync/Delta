@@ -36,7 +36,6 @@ export default function Login() {
       toast({
         title: 'Missing fields',
         description: 'Please fill in both email and password',
-        variant: 'destructive',
       });
       return;
     }
@@ -55,14 +54,12 @@ export default function Login() {
         toast({
           title: 'Login failed',
           description: 'Invalid email or password. Please try again.',
-          variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
       });
       console.error(error);
     }
@@ -79,9 +76,7 @@ export default function Login() {
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-            <CardDescription className="mt-2">
-              Sign in to your Neuron Delta account
-            </CardDescription>
+            <CardDescription className="mt-2">Sign in to your Neuron Delta account</CardDescription>
           </div>
         </CardHeader>
 
@@ -116,11 +111,7 @@ export default function Login() {
             </div>
 
             <div className="pt-4">
-              <Button
-                type="submit"
-                className="w-full h-11"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -158,7 +149,6 @@ export default function Login() {
           </form>
         </CardContent>
       </Card>
-
     </div>
   );
 }

@@ -1,0 +1,9 @@
+services:
+  backend:
+    image: ghcr.io/parasync/delta-frontend:develop-amd64
+    restart: unless-stopped
+    container_name: delta-frontend
+    ports:
+      - "8080:80"
+    env_file:
+      - ~/.deploy_env

@@ -7,4 +7,4 @@ export const auth = getAuth(app);
 
 export { signInWithEmailAndPassword, signOut, onAuthStateChanged };
 
-export const route = (s: string) => `http://localhost:3000${s}`; 
+export const route = (s: string) => `http://localhost:3000${s}`;

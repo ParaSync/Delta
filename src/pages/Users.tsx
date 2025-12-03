@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { 
-  Plus, 
-  Search, 
-  Edit3, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  Edit3,
+  Trash2,
   MoreVertical,
   Mail,
   Shield,
-  User as UserIcon
+  User as UserIcon,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -38,50 +38,50 @@ import {
 } from '@/components/ui/select';
 
 const mockUsers = [
-  { 
-    id: 1, 
-    name: 'Admin User', 
-    email: 'admin@neurondelta.com', 
-    role: 'admin', 
+  {
+    id: 1,
+    name: 'Admin User',
+    email: 'admin@neurondelta.com',
+    role: 'admin',
     status: 'active',
     lastLogin: '2 hours ago',
-    formsCompleted: 0
+    formsCompleted: 0,
   },
-  { 
-    id: 2, 
-    name: 'John Smith', 
-    email: 'john@neurondelta.com', 
-    role: 'employee', 
+  {
+    id: 2,
+    name: 'John Smith',
+    email: 'john@neurondelta.com',
+    role: 'employee',
     status: 'active',
     lastLogin: '1 day ago',
-    formsCompleted: 23
+    formsCompleted: 23,
   },
-  { 
-    id: 3, 
-    name: 'Sarah Johnson', 
-    email: 'sarah@neurondelta.com', 
-    role: 'employee', 
+  {
+    id: 3,
+    name: 'Sarah Johnson',
+    email: 'sarah@neurondelta.com',
+    role: 'employee',
     status: 'active',
     lastLogin: '3 hours ago',
-    formsCompleted: 31
+    formsCompleted: 31,
   },
-  { 
-    id: 4, 
-    name: 'Mike Wilson', 
-    email: 'mike@neurondelta.com', 
-    role: 'employee', 
+  {
+    id: 4,
+    name: 'Mike Wilson',
+    email: 'mike@neurondelta.com',
+    role: 'employee',
     status: 'inactive',
     lastLogin: '2 weeks ago',
-    formsCompleted: 12
+    formsCompleted: 12,
   },
-  { 
-    id: 5, 
-    name: 'Emily Davis', 
-    email: 'emily@neurondelta.com', 
-    role: 'employee', 
+  {
+    id: 5,
+    name: 'Emily Davis',
+    email: 'emily@neurondelta.com',
+    role: 'employee',
     status: 'active',
     lastLogin: '5 minutes ago',
-    formsCompleted: 18
+    formsCompleted: 18,
   },
 ];
 
@@ -91,18 +91,19 @@ export default function Users() {
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
-    role: 'employee'
+    role: 'employee',
   });
 
-  const filteredUsers = mockUsers.filter(user =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = mockUsers.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getInitials = (name: string) => {
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase();
   };
@@ -125,7 +126,7 @@ export default function Users() {
           <h1 className="text-3xl font-bold">User Management</h1>
           <p className="text-muted-foreground">Manage system users and their permissions</p>
         </div>
-        
+
         <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
@@ -136,11 +137,9 @@ export default function Users() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>
-                Create a new user account for the system
-              </DialogDescription>
+              <DialogDescription>Create a new user account for the system</DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
@@ -151,7 +150,7 @@ export default function Users() {
                   placeholder="Enter full name"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <Input
@@ -162,10 +161,13 @@ export default function Users() {
                   placeholder="Enter email address"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
+                <Select
+                  value={newUser.role}
+                  onValueChange={(value) => setNewUser({ ...newUser, role: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
@@ -175,14 +177,12 @@ export default function Users() {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleAddUser}>
-                  Create User
-                </Button>
+                <Button onClick={handleAddUser}>Create User</Button>
               </div>
             </div>
           </DialogContent>
@@ -199,11 +199,11 @@ export default function Users() {
           <CardContent>
             <div className="text-2xl font-bold text-primary">{mockUsers.length}</div>
             <p className="text-xs text-muted-foreground">
-              {mockUsers.filter(u => u.status === 'active').length} active users
+              {mockUsers.filter((u) => u.status === 'active').length} active users
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Administrators</CardTitle>
@@ -211,14 +211,12 @@ export default function Users() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              {mockUsers.filter(u => u.role === 'admin').length}
+              {mockUsers.filter((u) => u.role === 'admin').length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              System administrators
-            </p>
+            <p className="text-xs text-muted-foreground">System administrators</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Employees</CardTitle>
@@ -226,11 +224,9 @@ export default function Users() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              {mockUsers.filter(u => u.role === 'employee').length}
+              {mockUsers.filter((u) => u.role === 'employee').length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Regular employees
-            </p>
+            <p className="text-xs text-muted-foreground">Regular employees</p>
           </CardContent>
         </Card>
       </div>
@@ -240,8 +236,8 @@ export default function Users() {
         <CardContent className="p-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search users..." 
+            <Input
+              placeholder="Search users..."
               className="pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -256,12 +252,12 @@ export default function Users() {
           <CardTitle>Users</CardTitle>
           <CardDescription>A list of all users in the system</CardDescription>
         </CardHeader>
-        
+
         <CardContent className="p-0">
           <div className="space-y-0">
             {filteredUsers.map((user, index) => (
-              <div 
-                key={user.id} 
+              <div
+                key={user.id}
                 className={`flex items-center justify-between p-4 hover:bg-muted/50 transition-colors ${
                   index !== filteredUsers.length - 1 ? 'border-b' : ''
                 }`}
@@ -272,7 +268,7 @@ export default function Users() {
                       {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
-                  
+
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <h4 className="font-medium">{user.name}</h4>
@@ -291,17 +287,15 @@ export default function Users() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-4">
                   <div className="text-right text-sm">
                     <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
                       {user.status}
                     </Badge>
-                    <p className="text-muted-foreground mt-1">
-                      Last login {user.lastLogin}
-                    </p>
+                    <p className="text-muted-foreground mt-1">Last login {user.lastLogin}</p>
                   </div>
-                  
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

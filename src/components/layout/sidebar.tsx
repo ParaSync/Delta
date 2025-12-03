@@ -11,14 +11,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  MessageSquareMore, 
-  Users, 
-  Settings,
-  User
-} from 'lucide-react';
+import { LayoutDashboard, FileText, MessageSquareMore, Users, Settings, User } from 'lucide-react';
 import { DeltaLogo } from '@/components/delta-logo';
 import { useAuth } from '@/contexts/auth-context';
 
@@ -45,10 +38,12 @@ export function AppSidebar() {
 
   const items = user?.role === 'admin' ? adminItems : employeeItems;
   const collapsed = state === 'collapsed';
-  
+
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + '/');
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'bg-primary/10 text-primary font-medium border-r-2 border-primary' : 'hover:bg-muted/50';
+    isActive
+      ? 'bg-primary/10 text-primary font-medium border-r-2 border-primary'
+      : 'hover:bg-muted/50';
 
   return (
     <Sidebar className={collapsed ? 'w-14' : 'w-64'} collapsible="icon">
@@ -68,7 +63,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>
             {user?.role === 'admin' ? 'Administration' : 'Navigation'}
           </SidebarGroupLabel>
-          
+
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

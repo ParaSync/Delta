@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 test('logged out user is redirected to homepage', async ({ page }) => {
   await page.goto('http://localhost:4173/dashboard');
 
+  // `/` is the login page
   await page.waitForURL('**/login');
   await expect(page).toHaveURL(/\/login$/);
 });
