@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Forms from './pages/Forms';
 import FormBuilder from './pages/FormBuilder';
+import AnswerForm from './pages/AnswerForm';
 import Responses from './pages/Responses';
 import Users from './pages/Users';
 import NotFoundPage from './pages/NotFoundPage';
@@ -50,6 +51,9 @@ const App = () => (
             <Route path="/forms/new" element={<FormBuilder />} />
 
             <Route path="/forms/edit/:formId" element={<FormBuilder />} />
+
+            {/* Public form answering route */}
+            <Route path="/forms/answer/:formId" element={<AnswerForm />} />
 
             <Route
               path="/responses"

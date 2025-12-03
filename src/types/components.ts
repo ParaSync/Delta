@@ -90,7 +90,7 @@ export type BackendNode = {
   order: number;
   properties: any;
 };
- 
+
 // ! These type guards were implemented by Copilot.
 
 export function isImageProperties(
