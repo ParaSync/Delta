@@ -50,7 +50,7 @@ test('publish should display success modal', async ({ page }) => {
   const formName = `Sample Form ${Date.now()}`;
   await page.getByRole('textbox', { name: 'Untitled Form' }).fill(formName);
   await page.getByRole('textbox', { name: 'Untitled Form' }).press('Enter');
-
+  await page.getByTestId('palette-component-select').click();
   await page.getByRole('button', { name: 'Save' }).click();
 
   await expect(page.getByRole('link', { name: 'Forms' })).toHaveAttribute('aria-current', 'page');
@@ -75,6 +75,7 @@ test('offline mode should throw error', async ({ page, context }) => {
 
   await page.getByRole('link', { name: 'Forms' }).click();
   await page.getByRole('button', { name: 'Create New Form' }).click();
+  await page.getByTestId('palette-component-select').click();
   await context.setOffline(true);
   await page.getByRole('button', { name: 'Save' }).click();
 
