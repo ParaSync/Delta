@@ -116,7 +116,7 @@ type ComponentPaletteProps = {
 
 function ComponentPalette({ onAddComponent }: ComponentPaletteProps) {
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    Labels: false,
+    Labels: true,
     Inputs: true,
     Tables: true,
     Layout: false,
