@@ -41,14 +41,40 @@ function convertBackendToNode(component: BackendComponent): Node | null {
   if ('max' in source && source.max !== '') props.max = source.max;
   if ('step' in source && source.step !== '' && source.step !== 0) props.step = source.step;
   if ('options' in source) {
+    // Normalize options to always have { label, value } format
     props.options = Array.isArray(source.options)
-      ? (source.options as string[]).map((opt) => ({ label: opt }))
+      ? (source.options as Array<string | { label: string; value?: string }>).map((opt) => {
+          if (typeof opt === 'string') {
+            return { label: opt, value: opt };
+          }
+          // Object with label, ensure value exists (default to label if missing)
+          return { label: opt.label, value: opt.value ?? opt.label };
+        })
       : [];
   }
 
-  // Determine the node type based on backend inputType or type
+  // Determine the node type based on backend inputType, component type, or infer from name/properties
   const inputType = source.inputType || component.type;
   let nodeType: NodeType | undefined;
+
+  // Helper to infer type from component name or label
+  const inferTypeFromName = (name: string, label?: string): NodeType | undefined => {
+    const nameLower = name.toLowerCase();
+    const labelLower = (label || '').toLowerCase();
+    
+    if (nameLower.includes('submit') || labelLower === 'submit') return 'submit';
+    if (nameLower.includes('reset') || labelLower === 'reset') return 'reset';
+    if (nameLower.includes('checkbox') || nameLower.includes('agree') || nameLower.includes('terms') || nameLower.includes('accept')) return 'checkbox';
+    if (nameLower.includes('radio')) return 'radio';
+    if (nameLower.includes('select') || nameLower.includes('dropdown')) return 'select';
+    if (nameLower.includes('textarea') || nameLower.includes('message') || nameLower.includes('description')) return 'textarea';
+    if (nameLower.includes('email')) return 'text';
+    if (nameLower.includes('phone') || nameLower.includes('age') || nameLower.includes('number')) return 'number';
+    if (nameLower.includes('date')) return 'date';
+    if (nameLower.includes('time')) return 'time';
+    if (nameLower.includes('file') || nameLower.includes('upload')) return 'file';
+    return undefined;
+  };
 
   switch (inputType) {
     case 'text':
@@ -67,8 +93,9 @@ function convertBackendToNode(component: BackendComponent): Node | null {
       nodeType = 'radio';
       break;
     case 'button':
-      if (source.function === 'submit') nodeType = 'submit';
-      else if (source.function === 'reset') nodeType = 'reset';
+      if (source.function === 'submit' || (source.label as string)?.toLowerCase().includes('submit')) nodeType = 'submit';
+      else if (source.function === 'reset' || (source.label as string)?.toLowerCase().includes('reset')) nodeType = 'reset';
+      else nodeType = 'submit'; // Default buttons to submit
       break;
     case 'select':
       nodeType = 'select';
@@ -85,9 +112,31 @@ function convertBackendToNode(component: BackendComponent): Node | null {
     case 'time':
       nodeType = 'time';
       break;
+    case 'input':
+      // Backend normalized type to 'input' - try to infer actual type
+      // First, check if it has options - this is more reliable than name inference
+      if (Array.isArray(source.options) && source.options.length > 0) {
+        // Multiple options: check name to determine if select, radio, or checkbox
+        const nameLower = component.name.toLowerCase();
+        if (nameLower.includes('select') || nameLower.includes('department') || nameLower.includes('dropdown') || nameLower.includes('choose')) {
+          nodeType = 'select';
+        } else if (nameLower.includes('radio')) {
+          nodeType = 'radio';
+        } else if (nameLower.includes('checkbox') || nameLower.includes('agree') || nameLower.includes('terms') || nameLower.includes('accept')) {
+          nodeType = 'checkbox';
+        } else {
+          // Default options to select (dropdown) for better UX
+          nodeType = 'select';
+        }
+      } else {
+        // No options - infer from name or default to text
+        nodeType = inferTypeFromName(component.name, source.label as string) || 'text';
+      }
+      break;
     default:
       console.warn('Unknown input type:', inputType);
-      return null;
+      // Try to infer from name as last resort
+      nodeType = inferTypeFromName(component.name, source.label as string) || 'text';
   }
 
   if (!nodeType) return null;
@@ -142,10 +191,19 @@ function AnswerForm() {
         form.components.forEach((component) => {
           const node = convertBackendToNode(component);
           if (node) {
+            // Store the order from properties for sorting
+            (node as Node & { order?: number }).order = component.properties?.order as number ?? component.order ?? 0;
             convertedNodes.push(node);
             // Map frontend node ID to backend component ID for submission
             idMap.set(node.id, component.id);
           }
+        });
+
+        // Sort nodes by order before setting state
+        convertedNodes.sort((a, b) => {
+          const orderA = (a as Node & { order?: number }).order ?? 0;
+          const orderB = (b as Node & { order?: number }).order ?? 0;
+          return orderA - orderB;
         });
 
         setNodes(convertedNodes);
