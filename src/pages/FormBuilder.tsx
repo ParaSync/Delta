@@ -242,11 +242,7 @@ function FormBuilder() {
 
         const data = await response.json();
 
-        console.log('Raw Data:', data);
-
         const formTitle = data.value?.[0]?.title || 'Untitled Form';
-
-        console.log('Form Title:', formTitle);
 
         dispatch({ type: 'SET_TITLE', title: formTitle });
 
@@ -509,7 +505,8 @@ function FormBuilder() {
     // console.log(state.schema.pages[0].elements);
     // cvtStateToBody(body.components);
     console.log('Body: ', body);
-    if (!isEditing) {
+    console.log('isEditing', isEditing);
+    if (isEditing) {
       try {
         const response = await fetch(route('/api/form/create'), {
           method: 'POST',
