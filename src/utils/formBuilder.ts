@@ -22,26 +22,26 @@ export const toReactString = (value: unknown): string => {
 
 // Component Palette Configuration
 export const COMPONENT_CATEGORIES: ComponentCategory[] = [
-  // {
-  //   name: 'Labels',
-  //   items: [
-  //     { type: 'h1', label: 'Heading 1', icon: 'Type', defaultProps: { text: 'Heading 1' } },
-  //     { type: 'h2', label: 'Heading 2', icon: 'Type', defaultProps: { text: 'Heading 2' } },
-  //     { type: 'h3', label: 'Heading 3', icon: 'Type', defaultProps: { text: 'Heading 3' } },
-  //     {
-  //       type: 'paragraph',
-  //       label: 'Paragraph',
-  //       icon: 'AlignLeft',
-  //       defaultProps: { text: 'Paragraph text' },
-  //     },
-  //     {
-  //       type: 'help',
-  //       label: 'Help/Tooltip',
-  //       icon: 'HelpCircle',
-  //       defaultProps: { text: 'Help text' },
-  //     },
-  //   ],
-  // },
+  {
+    name: 'Labels',
+    items: [
+      { type: 'h1', label: 'Heading 1', icon: 'Type', defaultProps: { text: 'Heading 1' } },
+      { type: 'h2', label: 'Heading 2', icon: 'Type', defaultProps: { text: 'Heading 2' } },
+      { type: 'h3', label: 'Heading 3', icon: 'Type', defaultProps: { text: 'Heading 3' } },
+      {
+        type: 'paragraph',
+        label: 'Paragraph',
+        icon: 'AlignLeft',
+        defaultProps: { text: 'Paragraph text' },
+      },
+      {
+        type: 'help',
+        label: 'Help/Tooltip',
+        icon: 'HelpCircle',
+        defaultProps: { text: 'Help text' },
+      },
+    ],
+  },
   {
     name: 'Inputs',
     items: [
