@@ -32,4 +32,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/parasync/delta-backend:${{ github.event.workflow_run.head_branch }}-amd64
+          tags: ghcr.io/parasync/delta-frontend:${{ github.event.workflow_run.head_branch }}-amd64

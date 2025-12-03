@@ -3,14 +3,15 @@ name: Deploy Container via SSH (Develop)
 on:
   workflow_run:
     workflows: ["Build Docker Container (AMD64)"]
-    branches: [develop]
     types: 
       - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'develop'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
       - name: Upload docker-compose.yml
         run: |
           scp docker-compose.yml \
-            ${{ secrets.DEPLOY_REMOTE_USER }}@${{ secrets.DEPLOY_REMOTE_HOST }}:/home/github/docker-compose.yml
+            ${{ secrets.DEPLOY_REMOTE_USER }}@${{ secrets.DEPLOY_REMOTE_HOST }}:/home/github/docker-compose.frontend.develop.yml
 
       - name: Deploy container via SSH
         run: |
@@ -51,11 +52,11 @@ jobs:
             echo "$DOCKER_PAT" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
             # Pull updated image (no rebuild)
-            docker compose pull
+            docker compose -f docker-compose.frontend.develop.yml pull
 
             # Restart using the new image
-            docker compose down
-            docker compose up -d
+            docker compose -f docker-compose.frontend.develop.yml down
+            docker compose -f docker-compose.frontend.develop.yml up -d
           EOF
         env:
           GHCR_USER: ${{ secrets.GHCR_USER }}

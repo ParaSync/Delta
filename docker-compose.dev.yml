@@ -1,8 +1,8 @@
 services:
   backend:
-    image: ghcr.io/parasync/delta-api:latest
+    image: ghcr.io/parasync/delta-frontend:develop-amd64
     restart: unless-stopped
-    container_name: delta-backend
+    container_name: delta-frontend
     ports:
       - "8080:80"
     env_file:
