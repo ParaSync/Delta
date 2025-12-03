@@ -41,7 +41,7 @@ function BaseInputField({
         id={fieldId}
         type={type}
         value={String(value || '')}
-        onChange={(e) => onChange?.(e.target.value)}
+        onChange={(e) => e.target.value.length <= maxLength && onChange?.(e.target.value)}
         placeholder={String(props.placeholder || placeholder)}
         required={Boolean(props.required)}
         readOnly={Boolean(props.readonly)}
@@ -321,9 +321,7 @@ export function TextareaField({ node, value, error, onChange }: InteractiveField
           error ? 'border-red-500' : 'border-gray-300'
         }`}
       />
-      <p className="text-xs text-gray-500 mt-1">
-        {String(value || '').length}/1000 characters
-      </p>
+      <p className="text-xs text-gray-500 mt-1">{String(value || '').length}/1000 characters</p>
       {error && (
         <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
           {error}

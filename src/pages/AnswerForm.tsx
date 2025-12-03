@@ -214,7 +214,8 @@ function convertBackendToNode(component: BackendComponent): Node | null {
       default:
         console.warn('Unknown input type:', inputType);
         // Try to infer from name as last resort
-        nodeType = inferTypeFromName(component.name, source.label as string, hasValidOptions) || 'text';
+        nodeType =
+          inferTypeFromName(component.name, source.label as string, hasValidOptions) || 'text';
     }
   }
 
@@ -443,7 +444,12 @@ function AnswerForm() {
     updateValue(fieldKey, newRows);
   };
 
-  const handleTableUpdateCell = (fieldKey: string, rowIndex: number, colKey: string, value: unknown) => {
+  const handleTableUpdateCell = (
+    fieldKey: string,
+    rowIndex: number,
+    colKey: string,
+    value: unknown
+  ) => {
     const currentRows = (values[fieldKey] as Array<Record<string, unknown>>) || [];
     const newRows = [...currentRows];
     if (newRows[rowIndex]) {
@@ -497,7 +503,7 @@ function AnswerForm() {
           onChange={(val) => updateValue(fieldKey, val)}
           onAddRow={() => handleTableAddRow(fieldKey, columns)}
           onRemoveRow={(rowIndex: number) => handleTableRemoveRow(fieldKey, rowIndex)}
-          onUpdateCell={(rowIndex: number, colKey: string, value: unknown) => 
+          onUpdateCell={(rowIndex: number, colKey: string, value: unknown) =>
             handleTableUpdateCell(fieldKey, rowIndex, colKey, value)
           }
         />
@@ -582,14 +588,18 @@ function AnswerForm() {
   const visibleNodes = nodes.filter((node) => node.props.visibleInPreview !== false);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <main className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">{formData.title}</h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+            aria-label={formData.title ? `${formData.title} form` : 'Answer form'}
+          >
             {visibleNodes.map((node) => (
-              <div key={node.id} className="form-field">
+              <div key={node.id} className="form-field" role="group">
                 {renderNode(node)}
               </div>
             ))}
@@ -609,7 +619,7 @@ function AnswerForm() {
 
         <p className="text-center text-gray-500 text-sm mt-4">Powered by Delta Forms</p>
       </div>
-    </div>
+    </main>
   );
 }
 
