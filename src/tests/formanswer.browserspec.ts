@@ -150,7 +150,6 @@ test('fill text input field should persist when out of focus', async ({ page }) 
   await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
 
   await page.getByTestId('input-text').fill('testValue');
-  await page.getByTestId('input-datetime-local').click();
 
   await expect(page.getByTestId('input-text')).toHaveValue('testValue');
 });

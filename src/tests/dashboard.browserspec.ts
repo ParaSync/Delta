@@ -27,6 +27,7 @@ test('delete form should give confirmation', async ({ page }) => {
   const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
   await titleInput.fill(uniqueName);
   await titleInput.press('Enter');
+  await page.getByTestId('palette-component-textarea').click();
   await page.getByRole('button', { name: 'Save' }).click();
 
   await page.getByRole('link', { name: 'Forms' }).click();
