@@ -274,3 +274,257 @@ test('textarea must wrap appropriately with content preserved', async ({ page })
 
   expect(scrollHeight).toBeGreaterThan(clientHeight);
 });
+
+test('add row functionality for table input', async ({ page }) => {
+  const formName = `Add Row Form ${Date.now()}`;
+
+  await page.goto('http://localhost:4173/login');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await page.getByRole('link', { name: 'Forms' }).click();
+  await page.getByRole('button', { name: 'Create New Form' }).click();
+
+  await page.getByTestId('palette-component-table').click();
+
+  const titleInput = page.getByPlaceholder('Untitled form');
+  await titleInput.fill(formName);
+  await titleInput.press('Enter');
+
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('link', { name: 'Forms' }).click();
+
+  const formCard = page
+    .locator('div.bg-card')
+    .filter({ has: page.getByRole('heading', { name: formName }) });
+
+  await expect(formCard).toBeVisible();
+
+  await formCard.getByRole('button', { name: 'Edit Form' }).click();
+
+  const formCanvas = page.getByRole('list', { name: 'Form components' });
+
+  await page.getByRole('button', { name: 'Publish' }).click();
+  await page.getByRole('button', { name: 'Confirm Publish' }).click();
+
+  const shareLinkContainer = page
+    .locator('div')
+    .filter({ has: page.getByRole('button', { name: 'Copy' }) })
+    .last();
+
+  const shareInput = shareLinkContainer.locator('input');
+
+  await expect(shareInput).not.toBeEmpty();
+  const publicUrl = await shareInput.inputValue();
+
+  await page.goto(publicUrl);
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+
+  await page.getByRole('heading', { name: formName }).click();
+
+  await page.getByTestId('table-add-row').click();
+
+  await expect(page.getByTestId('table-cell-0-col1')).toBeVisible();
+
+  await expect(page.getByTestId('table-cell-0-col2')).toBeVisible();
+});
+
+test('delete row functionality for table input', async ({ page }) => {
+  const formName = `Delete Row Form ${Date.now()}`;
+
+  await page.goto('http://localhost:4173/login');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await page.getByRole('link', { name: 'Forms' }).click();
+  await page.getByRole('button', { name: 'Create New Form' }).click();
+
+  await page.getByTestId('palette-component-table').click();
+
+  const titleInput = page.getByPlaceholder('Untitled form');
+  await titleInput.fill(formName);
+  await titleInput.press('Enter');
+
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('link', { name: 'Forms' }).click();
+
+  const formCard = page
+    .locator('div.bg-card')
+    .filter({ has: page.getByRole('heading', { name: formName }) });
+
+  await expect(formCard).toBeVisible();
+
+  await formCard.getByRole('button', { name: 'Edit Form' }).click();
+
+  const formCanvas = page.getByRole('list', { name: 'Form components' });
+
+  await page.getByRole('button', { name: 'Publish' }).click();
+  await page.getByRole('button', { name: 'Confirm Publish' }).click();
+
+  const shareLinkContainer = page
+    .locator('div')
+    .filter({ has: page.getByRole('button', { name: 'Copy' }) })
+    .last();
+
+  const shareInput = shareLinkContainer.locator('input');
+
+  await expect(shareInput).not.toBeEmpty();
+  const publicUrl = await shareInput.inputValue();
+
+  await page.goto(publicUrl);
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+
+  await page.getByRole('heading', { name: formName }).click();
+
+  await page.getByTestId('table-add-row').click();
+  await page.getByTestId('table-add-row').click();
+  await page.getByTestId('table-add-row').click();
+  await page.getByTestId('table-remove-row-0').click();
+  await page.getByTestId('table-remove-row-0').click();
+
+  await expect(page.getByTestId('table-cell-1-col1')).not.toBeVisible();
+
+  await expect(page.getByTestId('table-cell-1-col2')).not.toBeVisible();
+});
+
+test('multiple input for table functionality', async ({ page }) => {
+  const formName = `Multiple Input Form ${Date.now()}`;
+
+  await page.goto('http://localhost:4173/login');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await page.getByRole('link', { name: 'Forms' }).click();
+  await page.getByRole('button', { name: 'Create New Form' }).click();
+
+  await page.getByTestId('palette-component-table').click();
+
+  const titleInput = page.getByPlaceholder('Untitled form');
+  await titleInput.fill(formName);
+  await titleInput.press('Enter');
+
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('link', { name: 'Forms' }).click();
+
+  const formCard = page
+    .locator('div.bg-card')
+    .filter({ has: page.getByRole('heading', { name: formName }) });
+
+  await expect(formCard).toBeVisible();
+
+  await formCard.getByRole('button', { name: 'Edit Form' }).click();
+
+  const formCanvas = page.getByRole('list', { name: 'Form components' });
+
+  await page.getByRole('button', { name: 'Publish' }).click();
+  await page.getByRole('button', { name: 'Confirm Publish' }).click();
+
+  const shareLinkContainer = page
+    .locator('div')
+    .filter({ has: page.getByRole('button', { name: 'Copy' }) })
+    .last();
+
+  const shareInput = shareLinkContainer.locator('input');
+
+  await expect(shareInput).not.toBeEmpty();
+  const publicUrl = await shareInput.inputValue();
+
+  await page.goto(publicUrl);
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+
+  await page.getByRole('heading', { name: formName }).click();
+
+  await page.getByTestId('table-add-row').click();
+  await page.getByTestId('table-add-row').click();
+
+  await expect(page.getByTestId('table-cell-0-col1')).toBeVisible();
+
+  await expect(page.getByTestId('table-cell-0-col2')).toBeVisible();
+
+  await page.getByTestId('table-cell-0-col1').fill('input1');
+
+  await page.getByTestId('table-cell-0-col2').fill('input2');
+
+  await page.getByTestId('table-cell-1-col1').fill('input3');
+
+  await page.getByTestId('table-cell-1-col2').fill('input4');
+
+  await expect(page.getByTestId('table-cell-0-col1')).toHaveValue('input1');
+  await expect(page.getByTestId('table-cell-0-col2')).toHaveValue('input2');
+
+  await expect(page.getByTestId('table-cell-1-col1')).toHaveValue('input3');
+  await expect(page.getByTestId('table-cell-1-col2')).toHaveValue('input4');
+});
+
+test('multiple input for table functionality', async ({ page }) => {
+  const formName = `Multiple Input Form ${Date.now()}`;
+
+  await page.goto('http://localhost:4173/login');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  await page.getByRole('link', { name: 'Forms' }).click();
+  await page.getByRole('button', { name: 'Create New Form' }).click();
+
+  await page.getByTestId('palette-component-table').click();
+
+  const titleInput = page.getByPlaceholder('Untitled form');
+  await titleInput.fill(formName);
+  await titleInput.press('Enter');
+
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('link', { name: 'Forms' }).click();
+
+  const formCard = page
+    .locator('div.bg-card')
+    .filter({ has: page.getByRole('heading', { name: formName }) });
+
+  await expect(formCard).toBeVisible();
+
+  await formCard.getByRole('button', { name: 'Edit Form' }).click();
+
+  const formCanvas = page.getByRole('list', { name: 'Form components' });
+
+  await page.getByRole('button', { name: 'Publish' }).click();
+  await page.getByRole('button', { name: 'Confirm Publish' }).click();
+
+  const shareLinkContainer = page
+    .locator('div')
+    .filter({ has: page.getByRole('button', { name: 'Copy' }) })
+    .last();
+
+  const shareInput = shareLinkContainer.locator('input');
+
+  await expect(shareInput).not.toBeEmpty();
+  const publicUrl = await shareInput.inputValue();
+
+  await page.goto(publicUrl);
+  await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
+
+  await page.getByRole('heading', { name: formName }).click();
+
+  await page.getByTestId('table-add-row').click();
+  await page.getByTestId('table-add-row').click();
+
+  await expect(page.getByTestId('table-cell-0-col1')).toBeVisible();
+
+  await expect(page.getByTestId('table-cell-0-col2')).toBeVisible();
+
+  await page.getByTestId('table-cell-0-col1').fill('input1');
+
+  await page.getByTestId('table-cell-0-col2').fill('input2');
+
+  await page.getByTestId('table-cell-1-col1').fill('input3');
+
+  await page.getByTestId('table-cell-1-col2').fill('input4');
+
+  await expect(page.getByTestId('table-cell-0-col1')).toHaveValue('input1');
+  await expect(page.getByTestId('table-cell-0-col2')).toHaveValue('input2');
+
+  await expect(page.getByTestId('table-cell-1-col1')).toHaveValue('input3');
+  await expect(page.getByTestId('table-cell-1-col2')).toHaveValue('input4');
+});
