@@ -188,11 +188,126 @@ export function RadioField({ node, value, error, onChange }: InteractiveFieldPro
   );
 }
 
-export function CheckboxField({ node, value, onChange }: InteractiveFieldProps) {
+export function CheckboxField({ node, value, error, onChange }: InteractiveFieldProps) {
   const { props } = node;
-  const isChecked = Boolean(value);
+  const options = (props.options as FieldOption[]) || [];
+  const labelText = props.label ? toReactString(props.label) : null;
+  const isSingleCheckbox = Boolean(props.isSingleCheckbox);
   const fieldId = `field-${node.id}`;
-  const labelText = String(props.label || 'Checkbox Field');
+  const groupId = `group-${node.id}`;
+  const errorId = `error-${node.id}`;
+
+  // Single checkbox (synthesized option or legacy) - render as single toggle
+  // Still sends array to backend for compatibility
+  if (isSingleCheckbox && options.length === 1) {
+    const singleOption = options[0];
+    const currentValues = Array.isArray(value) ? (value as string[]) : [];
+    const isChecked = currentValues.includes(singleOption.value);
+
+    const handleToggle = (checked: boolean) => {
+      onChange?.(checked ? [singleOption.value] : []);
+    };
+
+    return (
+      <div className="mb-4">
+        <label htmlFor={fieldId} className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            id={fieldId}
+            checked={isChecked}
+            onChange={(e) => handleToggle(e.target.checked)}
+            aria-checked={isChecked}
+            aria-required={Boolean(props.required)}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
+            data-testid="checkbox"
+            className="rounded border-gray-300"
+          />
+          <span className="text-sm font-medium">{singleOption.label}</span>
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-1" aria-label="required">
+              *
+            </span>
+          )}
+        </label>
+        {error && (
+          <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Multiple options - render as a group of checkboxes
+  if (options.length > 0) {
+    const currentValues = Array.isArray(value) ? (value as string[]) : [];
+
+    const handleToggle = (optionValue: string, checked: boolean) => {
+      const newValues = checked
+        ? [...currentValues, optionValue]
+        : currentValues.filter((v) => v !== optionValue);
+      onChange?.(newValues);
+    };
+
+    return (
+      <div className="mb-4">
+        {labelText && (
+          <label id={groupId} className="block font-medium mb-2">
+            {labelText}
+            {Boolean(props.required) && (
+              <span className="text-red-600 ml-1" aria-label="required">
+                *
+              </span>
+            )}
+          </label>
+        )}
+        <div
+          role="group"
+          aria-labelledby={labelText ? groupId : undefined}
+          aria-label={!labelText ? 'checkbox group' : undefined}
+          aria-required={Boolean(props.required)}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          data-testid="checkbox-group"
+          className={`space-y-2 ${error ? 'border border-red-500 rounded-md p-3' : ''}`}
+        >
+          {options.map((opt) => {
+            const isChecked = currentValues.includes(opt.value);
+            const optionId = `${node.id}-${opt.value}`;
+
+            return (
+              <div key={opt.value} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={optionId}
+                  checked={isChecked}
+                  onChange={(e) => handleToggle(opt.value, e.target.checked)}
+                  aria-checked={isChecked}
+                  data-testid={`checkbox-option-${opt.value}`}
+                  className="rounded border-gray-300"
+                />
+                <label htmlFor={optionId} className="text-sm cursor-pointer">
+                  {opt.label}
+                </label>
+              </div>
+            );
+          })}
+        </div>
+        {error && (
+          <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Fallback: No options at all (shouldn't happen with new logic, but kept for safety)
+  const displayLabel = labelText || 'Checkbox Field';
+  const fallbackValue = displayLabel;
+  const currentValues = Array.isArray(value) ? (value as string[]) : [];
+  const isChecked = currentValues.includes(fallbackValue);
 
   return (
     <div className="mb-4">
@@ -201,14 +316,24 @@ export function CheckboxField({ node, value, onChange }: InteractiveFieldProps) 
           type="checkbox"
           id={fieldId}
           checked={isChecked}
-          onChange={(e) => onChange?.(e.target.checked)}
+          onChange={(e) => onChange?.(e.target.checked ? [fallbackValue] : [])}
           aria-checked={isChecked}
-          aria-label={labelText}
+          aria-label={displayLabel}
           data-testid="checkbox"
           className="rounded border-gray-300"
         />
-        <span className="text-sm font-medium">{labelText}</span>
+        <span className="text-sm font-medium">{displayLabel}</span>
+        {Boolean(props.required) && (
+          <span className="text-red-600 ml-1" aria-label="required">
+            *
+          </span>
+        )}
       </label>
+      {error && (
+        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert" aria-live="polite">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

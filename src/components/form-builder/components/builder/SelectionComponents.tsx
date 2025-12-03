@@ -172,13 +172,66 @@ export function RadioField({ node, onUpdateNode }: BaseFieldProps) {
 
 export function CheckboxField({ node, onUpdateNode }: BaseFieldProps) {
   const { props } = node;
+  const options = (props.options as FieldOption[]) || [];
   const fieldId = `builder-field-${node.id}`;
+  const groupId = `builder-group-${node.id}`;
   const labelText = String(props.label || 'Checkbox Field');
 
   const handleLabelChange = (value: string) => {
     onUpdateNode?.(node.id, { label: value });
   };
 
+  // If there are options, render as a group (like radio/multiselect)
+  if (options.length > 0) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center">
+          <InlineEdit
+            value={labelText}
+            onChange={handleLabelChange}
+            as="label"
+            className="text-sm font-medium"
+            placeholder="Checkbox Field"
+            disabled={!onUpdateNode}
+          />
+          {Boolean(props.required) && (
+            <span className="text-red-600 ml-0.5" aria-label="required">
+              *
+            </span>
+          )}
+        </div>
+        <div
+          role="group"
+          aria-labelledby={groupId}
+          aria-required={Boolean(props.required)}
+          data-testid="builder-checkbox-group"
+          className="space-y-2"
+        >
+          {options.map((opt, i) => {
+            const optionId = `${node.id}-option-${i}`;
+
+            return (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  id={optionId}
+                  type="checkbox"
+                  aria-checked="false"
+                  data-testid={`builder-checkbox-option-${opt.value}`}
+                  className="rounded border-gray-300 pointer-events-none"
+                  disabled
+                />
+                <label htmlFor={optionId} className="text-sm">
+                  {opt.label}
+                </label>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // No options - render as single checkbox (legacy/fallback)
   return (
     <div className="flex items-center gap-2">
       <input

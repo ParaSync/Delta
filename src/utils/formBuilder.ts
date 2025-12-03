@@ -96,7 +96,7 @@ export const COMPONENT_CATEGORIES: ComponentCategory[] = [
         type: 'checkbox',
         label: 'Checkbox',
         icon: 'Square',
-        defaultProps: { label: 'Checkbox Field' },
+        defaultProps: { label: 'Checkbox Field', options: [{ value: 'option1', label: 'Option 1' }] },
       },
       // {
       //   type: 'file',

@@ -217,6 +217,126 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
           </>
         )}
 
+        {/* Min/Max Date properties (date) */}
+        {selectedNode.type === 'date' && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label
+                htmlFor={`prop-mindate-${selectedNode.id}`}
+                className="block text-xs font-medium mb-1"
+              >
+                Min Date
+              </label>
+              <input
+                id={`prop-mindate-${selectedNode.id}`}
+                type="date"
+                value={selectedNode.props.minDate ? String(selectedNode.props.minDate) : ''}
+                onChange={(e) => updateProp('minDate', e.target.value || undefined)}
+                aria-label="Minimum date"
+                data-testid="property-mindate"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor={`prop-maxdate-${selectedNode.id}`}
+                className="block text-xs font-medium mb-1"
+              >
+                Max Date
+              </label>
+              <input
+                id={`prop-maxdate-${selectedNode.id}`}
+                type="date"
+                value={selectedNode.props.maxDate ? String(selectedNode.props.maxDate) : ''}
+                onChange={(e) => updateProp('maxDate', e.target.value || undefined)}
+                aria-label="Maximum date"
+                data-testid="property-maxdate"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Min/Max DateTime properties (datetime) */}
+        {selectedNode.type === 'datetime' && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label
+                htmlFor={`prop-mindatetime-${selectedNode.id}`}
+                className="block text-xs font-medium mb-1"
+              >
+                Min DateTime
+              </label>
+              <input
+                id={`prop-mindatetime-${selectedNode.id}`}
+                type="datetime-local"
+                value={selectedNode.props.minDateTime ? String(selectedNode.props.minDateTime) : ''}
+                onChange={(e) => updateProp('minDateTime', e.target.value || undefined)}
+                aria-label="Minimum date and time"
+                data-testid="property-mindatetime"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor={`prop-maxdatetime-${selectedNode.id}`}
+                className="block text-xs font-medium mb-1"
+              >
+                Max DateTime
+              </label>
+              <input
+                id={`prop-maxdatetime-${selectedNode.id}`}
+                type="datetime-local"
+                value={selectedNode.props.maxDateTime ? String(selectedNode.props.maxDateTime) : ''}
+                onChange={(e) => updateProp('maxDateTime', e.target.value || undefined)}
+                aria-label="Maximum date and time"
+                data-testid="property-maxdatetime"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Min/Max Time properties (time) */}
+        {selectedNode.type === 'time' && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label
+                htmlFor={`prop-mintime-${selectedNode.id}`}
+                className="block text-xs font-medium mb-1"
+              >
+                Min Time
+              </label>
+              <input
+                id={`prop-mintime-${selectedNode.id}`}
+                type="time"
+                value={selectedNode.props.minTime ? String(selectedNode.props.minTime) : ''}
+                onChange={(e) => updateProp('minTime', e.target.value || undefined)}
+                aria-label="Minimum time"
+                data-testid="property-mintime"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor={`prop-maxtime-${selectedNode.id}`}
+                className="block text-xs font-medium mb-1"
+              >
+                Max Time
+              </label>
+              <input
+                id={`prop-maxtime-${selectedNode.id}`}
+                type="time"
+                value={selectedNode.props.maxTime ? String(selectedNode.props.maxTime) : ''}
+                onChange={(e) => updateProp('maxTime', e.target.value || undefined)}
+                aria-label="Maximum time"
+                data-testid="property-maxtime"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md"
+              />
+            </div>
+          </div>
+        )}
+
         {/* File accept property */}
         {selectedNode.type === 'file' && (
           <>
@@ -339,8 +459,8 @@ function PropertiesPanel({ selectedNode, onUpdateNode }: PropertiesPanelProps) {
           </>
         )}
 
-        {/* Options editor (select, multiselect, radio) */}
-        {['select', 'multiselect', 'radio'].includes(selectedNode.type) && (
+        {/* Options editor (select, multiselect, radio, checkbox) */}
+        {['select', 'multiselect', 'radio', 'checkbox'].includes(selectedNode.type) && (
           <div role="group" aria-label="Options editor">
             <label
               id={`options-label-${selectedNode.id}`}

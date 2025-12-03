@@ -327,6 +327,8 @@ function FormBuilder() {
       properties: {
         required: Boolean(component.props.required),
         label: component.props.label?.toString() || '',
+        // Save hidden/visibility state
+        visibleInPreview: component.props.visibleInPreview !== false,
       },
     };
 
@@ -368,6 +370,13 @@ function FormBuilder() {
       case 'datetime': {
         backendNode.type = 'datetime-local';
         backendNode.name = '';
+        // Include min/max datetime constraints
+        if (component.props.minDateTime) {
+          backendNode.properties.minDateTime = String(component.props.minDateTime);
+        }
+        if (component.props.maxDateTime) {
+          backendNode.properties.maxDateTime = String(component.props.maxDateTime);
+        }
         break;
       }
       case 'select': {
@@ -441,6 +450,8 @@ function FormBuilder() {
     // preserve other props
     if ('required' in source) nodeProps.required = Boolean(source.required);
     if ('label' in source) nodeProps.label = String(source.label);
+    // Load hidden/visibility state
+    if ('visibleInPreview' in source) nodeProps.visibleInPreview = source.visibleInPreview;
     if ('options' in source)
       nodeProps.options = source.options.map((label) => ({ value: '', label })) || [];
 
@@ -470,6 +481,9 @@ function FormBuilder() {
           break;
         case 'datetime-local':
           type = 'datetime';
+          // Load min/max datetime constraints
+          if (source.minDateTime) nodeProps.minDateTime = String(source.minDateTime);
+          if (source.maxDateTime) nodeProps.maxDateTime = String(source.maxDateTime);
           break;
         case 'checkbox':
           type = 'checkbox';
@@ -543,6 +557,18 @@ function FormBuilder() {
     console.log('Saving form:', state.schema);
 
     console.log(state.schema.pages[0].elements);
+
+    // Check for at least one input component
+    const inputTypes = ['text', 'textarea', 'number', 'date', 'time', 'datetime', 'select', 'multiselect', 'radio', 'checkbox', 'file', 'table'];
+    const hasInputComponent = state.schema.pages[0].elements.some((el) => inputTypes.includes(el.type));
+    
+    if (!hasInputComponent) {
+      toast({
+        title: 'Cannot save form',
+        description: 'Your form must have at least one input component (text field, number, select, checkbox, etc.).',
+      });
+      return;
+    }
 
     const body = {
       title: state.schema.title,

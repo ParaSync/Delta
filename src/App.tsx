@@ -52,7 +52,6 @@ const App = () => (
 
             <Route path="/forms/edit/:formId" element={<FormBuilder />} />
 
-            {/* Public form answering route */}
             <Route path="/forms/answer/:formId" element={<AnswerForm />} />
 
             <Route
