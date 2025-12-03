@@ -28,13 +28,17 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - 
+        name: Write firebase-client-config.json
+        run: |
+          echo '${{ secrets.FIREBASE_CLIENT_CONFIG }}' > ./firebase-client-config.json
       -
         name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/parasync/delta-frontend:${{ github.event.workflow_run.head_branch }}-amd64
+          tags: ghcr.io/parasync/delta-backend:${{ github.event.workflow_run.head_branch }}-amd64
 
   deploy-dev:
     runs-on: self-hosted
@@ -63,7 +67,7 @@ jobs:
       - name: Upload docker-compose.yml
         run: |
           scp docker-compose.dev.yml \
-            ${{ secrets.DEPLOY_REMOTE_USER }}@${{ secrets.DEPLOY_REMOTE_HOST }}:/home/github/docker-compose.frontend.develop.yml
+            ${{ secrets.DEPLOY_REMOTE_USER }}@${{ secrets.DEPLOY_REMOTE_HOST }}:/home/github/docker-compose.backend.develop.yml
 
       - name: Deploy container via SSH
         run: |
@@ -72,11 +76,11 @@ jobs:
             cd /home/github
 
             # Pull updated image (no rebuild)
-            sudo docker compose -f docker-compose.frontend.develop.yml pull
+            sudo docker compose -f docker-compose.backend.develop.yml pull
 
             # Restart using the new image
-            sudo docker compose -f docker-compose.frontend.develop.yml down
-            sudo docker compose -f docker-compose.frontend.develop.yml up -d
+            sudo docker compose -f docker-compose.backend.develop.yml down
+            sudo docker compose -f docker-compose.backend.develop.yml up -d
             exit
           EOF
         env:
