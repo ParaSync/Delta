@@ -383,6 +383,13 @@ function FormBuilder() {
         backendNode.name = '';
         break;
       }
+      case 'table': {
+        backendNode.properties.options = component.props.columns;
+        backendNode.properties.maxRows = component.props.maxRows;
+        backendNode.type = 'table';
+        backendNode.name = '';
+        break;
+      }
       case 'submit': {
         backendNode.type = 'button';
         backendNode.name = '';
@@ -458,6 +465,11 @@ function FormBuilder() {
           break;
         case 'radio':
           type = 'radio';
+          break;
+        case 'table':
+          type = 'table';
+          nodeProps.columns = source.options;
+          nodeProps.maxRows = source.maxRows;
           break;
         case 'button':
           if (source.function === 'submit') type = 'submit';
