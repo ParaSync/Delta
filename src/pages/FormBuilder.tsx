@@ -317,7 +317,7 @@ function FormBuilder() {
   const togglePreview = () => {
     dispatch({ type: 'TOGGLE_PREVIEW' });
   };
-
+  // backend to frontend
   const cvtTypeToComponent = (component: Node, order: number): BackendNode | undefined => {
     const backendNode: BackendNode = {
       type: '',
@@ -420,8 +420,7 @@ function FormBuilder() {
 
     // Map custom header types to text
     if (inputType === 'h1' || inputType === 'h2' || inputType === 'h3') {
-      type = 'text';
-      nodeProps.variant = inputType; // optional, store the header level
+      nodeProps.variant = inputType;
     } else {
       switch (inputType) {
         case 'text':
@@ -506,7 +505,7 @@ function FormBuilder() {
     // cvtStateToBody(body.components);
     console.log('Body: ', body);
     console.log('isEditing', isEditing);
-    if (isEditing) {
+    if (!isEditing) {
       try {
         const response = await fetch(route('/api/form/create'), {
           method: 'POST',
