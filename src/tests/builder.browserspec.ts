@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 test('create form and verify components persist after save', async ({ page }) => {
+  const formName = `My Form ${Date.now()}`;
+
   await page.goto('http://localhost:4173/login');
   await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
   await page.getByRole('textbox', { name: 'Password' }).fill('password');
@@ -13,23 +15,27 @@ test('create form and verify components persist after save', async ({ page }) =>
   await page.getByTestId('palette-component-datetime').click();
 
   const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
-  await titleInput.fill('My Form');
+
+  await titleInput.fill(formName);
   await titleInput.press('Enter');
 
   await page.getByRole('button', { name: 'Save' }).click();
-
   await page.getByRole('link', { name: 'Forms' }).click();
 
-  const formRow = page.locator('tr', { hasText: 'My Form' });
+  const formCard = page
+    .locator('div.bg-card')
+    .filter({ has: page.getByRole('heading', { name: formName }) });
 
-  await page.getByRole('button', { name: 'Edit Form' }).first().click();
+  await expect(formCard).toBeVisible();
+
+  await formCard.getByRole('button', { name: 'Edit Form' }).click();
 
   const formCanvas = page.getByRole('list', { name: 'Form components' });
 
   await expect(formCanvas).toContainText('Text Field');
   await expect(formCanvas).toContainText('Date & Time Field');
 
-  await expect(page.getByRole('textbox', { name: /Untitled Form|My Form/ })).toHaveValue('My Form');
+  await expect(page.getByRole('textbox', { name: /Untitled Form|My Form/ })).toHaveValue(formName);
 });
 
 test('publish should display success modal', async ({ page }) => {
