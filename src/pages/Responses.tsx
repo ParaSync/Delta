@@ -3,16 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
-  Search, 
-  Download, 
-  Eye, 
-  Edit3, 
-  Trash2, 
-  Calendar,
-  FileText,
-  Filter
-} from 'lucide-react';
+import { Search, Download, Eye, Edit3, Trash2, Calendar, FileText, Filter } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +19,7 @@ const mockResponses = [
     submittedBy: 'John Smith',
     submittedAt: '2024-01-15 14:30',
     status: 'completed',
-    responseId: 'R001'
+    responseId: 'R001',
   },
   {
     id: 2,
@@ -36,7 +27,7 @@ const mockResponses = [
     submittedBy: 'Sarah Johnson',
     submittedAt: '2024-01-15 10:15',
     status: 'completed',
-    responseId: 'R002'
+    responseId: 'R002',
   },
   {
     id: 3,
@@ -44,7 +35,7 @@ const mockResponses = [
     submittedBy: 'Mike Wilson',
     submittedAt: '2024-01-14 16:45',
     status: 'pending',
-    responseId: 'R003'
+    responseId: 'R003',
   },
   {
     id: 4,
@@ -52,7 +43,7 @@ const mockResponses = [
     submittedBy: 'Emily Davis',
     submittedAt: '2024-01-14 09:20',
     status: 'completed',
-    responseId: 'R004'
+    responseId: 'R004',
   },
 ];
 
@@ -60,18 +51,23 @@ export default function Responses() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredResponses = mockResponses.filter(response =>
-    response.formName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    response.submittedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    response.responseId.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredResponses = mockResponses.filter(
+    (response) =>
+      response.formName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      response.submittedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      response.responseId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'default';
-      case 'pending': return 'secondary';
-      case 'rejected': return 'destructive';
-      default: return 'secondary';
+      case 'completed':
+        return 'default';
+      case 'pending':
+        return 'secondary';
+      case 'rejected':
+        return 'destructive';
+      default:
+        return 'secondary';
     }
   };
 
@@ -84,13 +80,12 @@ export default function Responses() {
             {user?.role === 'admin' ? 'All Responses' : 'My Responses'}
           </h1>
           <p className="text-muted-foreground">
-            {user?.role === 'admin' 
-              ? 'View and manage all form responses' 
-              : 'Track your form submissions and responses'
-            }
+            {user?.role === 'admin'
+              ? 'View and manage all form responses'
+              : 'Track your form submissions and responses'}
           </p>
         </div>
-        
+
         {user?.role === 'admin' && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -100,15 +95,9 @@ export default function Responses() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>
-                Export as CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Export as Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Export as JSON
-              </DropdownMenuItem>
+              <DropdownMenuItem>Export as CSV</DropdownMenuItem>
+              <DropdownMenuItem>Export as Excel</DropdownMenuItem>
+              <DropdownMenuItem>Export as JSON</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -123,12 +112,10 @@ export default function Responses() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{mockResponses.length}</div>
-            <p className="text-xs text-muted-foreground">
-              All time submissions
-            </p>
+            <p className="text-xs text-muted-foreground">All time submissions</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Week</CardTitle>
@@ -136,12 +123,10 @@ export default function Responses() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">12</div>
-            <p className="text-xs text-muted-foreground">
-              +25% from last week
-            </p>
+            <p className="text-xs text-muted-foreground">+25% from last week</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
@@ -151,14 +136,12 @@ export default function Responses() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              {mockResponses.filter(r => r.status === 'completed').length}
+              {mockResponses.filter((r) => r.status === 'completed').length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Successfully submitted
-            </p>
+            <p className="text-xs text-muted-foreground">Successfully submitted</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
@@ -168,11 +151,9 @@ export default function Responses() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-accent">
-              {mockResponses.filter(r => r.status === 'pending').length}
+              {mockResponses.filter((r) => r.status === 'pending').length}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting action
-            </p>
+            <p className="text-xs text-muted-foreground">Awaiting action</p>
           </CardContent>
         </Card>
       </div>
@@ -183,8 +164,8 @@ export default function Responses() {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search responses..." 
+              <Input
+                placeholder="Search responses..."
                 className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -206,12 +187,12 @@ export default function Responses() {
             {filteredResponses.length} response{filteredResponses.length !== 1 ? 's' : ''} found
           </CardDescription>
         </CardHeader>
-        
+
         <CardContent className="p-0">
           <div className="space-y-0">
             {filteredResponses.map((response, index) => (
-              <div 
-                key={response.id} 
+              <div
+                key={response.id}
                 className={`flex items-center justify-between p-4 hover:bg-muted/50 transition-colors ${
                   index !== filteredResponses.length - 1 ? 'border-b' : ''
                 }`}
@@ -219,9 +200,7 @@ export default function Responses() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-3">
                     <h4 className="font-medium">{response.formName}</h4>
-                    <Badge variant={getStatusColor(response.status)}>
-                      {response.status}
-                    </Badge>
+                    <Badge variant={getStatusColor(response.status)}>{response.status}</Badge>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>Response ID: {response.responseId}</span>
@@ -231,13 +210,13 @@ export default function Responses() {
                     <span>{response.submittedAt}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" className="gap-2">
                     <Eye className="h-4 w-4" />
                     View
                   </Button>
-                  
+
                   {user?.role === 'admin' && (
                     <>
                       <Button variant="ghost" size="sm">
@@ -248,7 +227,7 @@ export default function Responses() {
                       </Button>
                     </>
                   )}
-                  
+
                   <Button variant="ghost" size="sm">
                     <Download className="h-4 w-4" />
                   </Button>
@@ -269,7 +248,9 @@ export default function Responses() {
               <div>
                 <h3 className="font-semibold">No responses found</h3>
                 <p className="text-muted-foreground">
-                  {searchTerm ? 'Try adjusting your search terms' : 'No form responses have been submitted yet'}
+                  {searchTerm
+                    ? 'Try adjusting your search terms'
+                    : 'No form responses have been submitted yet'}
                 </p>
               </div>
             </div>

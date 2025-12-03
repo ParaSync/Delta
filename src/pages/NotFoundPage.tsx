@@ -15,24 +15,24 @@ export default function NotFoundPage() {
           <div className="flex justify-center">
             <DeltaLogo size="lg" />
           </div>
-          
+
           <div className="space-y-4">
             <div className="space-y-2">
               <h1 className="text-6xl font-bold text-primary">404</h1>
               <h2 className="text-2xl font-semibold">Page Not Found</h2>
             </div>
-            
+
             <p className="text-muted-foreground">
               The page you're looking for doesn't exist or has been moved.
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={() => navigate(-1)} variant="outline" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
               Go Back
             </Button>
-            
+
             <Button asChild className="gap-2">
               <Link to="/dashboard">
                 <Home className="h-4 w-4" />
