@@ -761,7 +761,6 @@ test('invalid date input prevents submission', async ({ page }) => {
 });
 
 test('table enforces max rows limit', async ({ page }) => {
-  // Step 0: login and prepare the form for testing
   const formName = `Table Max Rows Form ${Date.now()}`;
 
   await page.goto('http://localhost:4173/login');
@@ -773,10 +772,7 @@ test('table enforces max rows limit', async ({ page }) => {
   await page.getByRole('button', { name: 'Create New Form' }).click();
 
   await page.getByTestId('palette-component-table').click();
-
-  // Configure max rows in the table properties and read it from the node configuration
   const maxRowsInput = page.getByTestId('property-maxrows');
-  // Ensure a known value for the test
   await maxRowsInput.fill('3');
   const maxRowsValue = await maxRowsInput.inputValue();
   const maxRows = Number(maxRowsValue);
@@ -807,35 +803,21 @@ test('table enforces max rows limit', async ({ page }) => {
   const shareInput = shareLinkContainer.locator('input');
   await expect(shareInput).not.toBeEmpty();
   const publicUrl = await shareInput.inputValue();
-
-  // Step 1: navigate to the form URL
   await page.goto(publicUrl);
   await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
-
-  // Step 3: declare addButton on the public form
   const addButton = page.getByTestId('table-add-row');
-
-  // Step 4: loop from 0 to maxRows and click the add button each iteration
   for (let i = 0; i < maxRows; i++) {
     await addButton.click();
   }
-
-  // Step 5: verify the add button becomes disabled
   await expect(addButton).toBeDisabled();
   await expect(addButton).toHaveAttribute('aria-disabled', 'true');
-
-  // Step 6: count the table rows and verify the count equals maxRows
   const tableRows = page.locator('[data-testid="table"] tbody tr');
   await expect(tableRows).toHaveCount(maxRows);
-
-  // Step 7: verify an appropriate warning/limit indication if applicable
-  // Here we at least confirm the disabled state remains and no success toast appears
   await expect(addButton).toBeDisabled();
   await expect(page.getByRole('alert', { name: 'toast-notification' })).not.toBeVisible();
 });
 
 test('submitting form with no required fields behaves correctly', async ({ page }) => {
-  // Step 0: login and prepare the form for testing
   const formName = `No Required Fields Form ${Date.now()}`;
 
   await page.goto('http://localhost:4173/login');
@@ -845,8 +827,6 @@ test('submitting form with no required fields behaves correctly', async ({ page 
 
   await page.getByRole('link', { name: 'Forms' }).click();
   await page.getByRole('button', { name: 'Create New Form' }).click();
-
-  // Add a few non-required fields (default is not required)
   await page.getByTestId('palette-component-text').click();
   await page.getByTestId('palette-component-number').click();
   await page.getByTestId('palette-component-datetime').click();
@@ -878,18 +858,10 @@ test('submitting form with no required fields behaves correctly', async ({ page 
   const shareInput = shareLinkContainer.locator('input');
   await expect(shareInput).not.toBeEmpty();
   const publicUrl = await shareInput.inputValue();
-
-  // Step 1: navigate to the form URL
   await page.goto(publicUrl);
-
-  // Step 2: declare submitButton
   const submitButton = page.getByRole('button', { name: /submit/i });
   await expect(submitButton).toBeVisible();
-
-  // Step 3: click submit without filling any fields
   await submitButton.click();
-
-  // Step 4: verify either a success toast appears OR an empty form message is displayed
   const emptyMessage = page.getByText(/empty form|no responses|no data|submission error/i, {
     exact: false,
   });
@@ -898,7 +870,6 @@ test('submitting form with no required fields behaves correctly', async ({ page 
 });
 
 test('very long text input is handled and preserved', async ({ page }) => {
-  // Step 0: login and prepare the form for testing
   const formName = `Long Text Form ${Date.now()}`;
   const consoleMessages: string[] = [];
 
@@ -909,8 +880,6 @@ test('very long text input is handled and preserved', async ({ page }) => {
 
   await page.getByRole('link', { name: 'Forms' }).click();
   await page.getByRole('button', { name: 'Create New Form' }).click();
-
-  // Create a simple form with a single text field
   await page.getByTestId('palette-component-text').click();
 
   const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
@@ -939,36 +908,21 @@ test('very long text input is handled and preserved', async ({ page }) => {
   const shareInput = shareLinkContainer.locator('input');
   await expect(shareInput).not.toBeEmpty();
   const publicUrl = await shareInput.inputValue();
-
-  // Step 1: navigate to the form URL using page.goto()
   await page.goto(publicUrl);
-
-  // Step 2: declare longText with 'A'.repeat(1500)
   const longText = 'A'.repeat(1500);
   const cutText = 'A'.repeat(1000);
-
-  // Step 3: declare textInput using input[type="text"]
   const textInput = page.locator('input[type="text"]');
-
-  // Step 4: fill the input with longText
   await textInput.fill(longText, { force: false });
-
-  // Step 5: verify the input contains longText
   await expect(textInput).toHaveValue(cutText);
-
-  // Step 6: click the submit button and verify the form data integrity is preserved
   const submitButton = page.getByRole('button', { name: /submit/i });
   await expect(submitButton).toBeVisible();
   await submitButton.click();
-
-  // Expect a success toast
   const successMessage = page.getByRole('heading', { name: 'Thank you!' });
   await successMessage.waitFor({ state: 'visible' });
   expect(successMessage.isVisible()).toBeTruthy();
 });
 
 test('pasting text with special characters preserves data integrity', async ({ page }) => {
-  // Step 0: login and prepare the form for testing
   const formName = `Paste Text Form ${Date.now()}`;
   const consoleMessages: string[] = [];
 
@@ -979,8 +933,6 @@ test('pasting text with special characters preserves data integrity', async ({ p
 
   await page.getByRole('link', { name: 'Forms' }).click();
   await page.getByRole('button', { name: 'Create New Form' }).click();
-
-  // Create a simple form with a single text field
   await page.getByTestId('palette-component-text').click();
 
   const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
@@ -1009,32 +961,17 @@ test('pasting text with special characters preserves data integrity', async ({ p
   const shareInput = shareLinkContainer.locator('input');
   await expect(shareInput).not.toBeEmpty();
   const publicUrl = await shareInput.inputValue();
-
-  // Step 1: navigate to the form URL using page.goto()
   await page.goto(publicUrl);
-
-  // Step 2: declare testText with special characters and newline
   const testText = 'Test™ © 2025 \n Special. 你好！ 감나합니다!';
-
-  // Step 3: declare textInput using page.locator('input')
   const textInput = page.locator('input');
-
-  // Step 4: fill the input with testText (simulating paste from external source)
   await textInput.fill(testText);
-
-  // Step 5: verify the input contains testText with all special characters preserved, except for the newline character
   await expect(textInput).toHaveValue(testText.replace('\n', ' '));
-
-  // Step 6: submit the form and check logs
   const submitButton = page.getByRole('button', { name: /submit/i });
   await expect(submitButton).toBeVisible();
   await submitButton.click();
-
-  // Expect the usual success indication (toast or thank-you screen)
   const successToast = page.getByRole('alert', { name: 'toast-notification' });
   const toastVisible = await successToast.isVisible().catch(() => false);
   if (!toastVisible) {
-    // Fallback to thank-you heading if your flow redirects to a confirmation page
     const successHeading = page.getByRole('heading', { name: 'Thank you!' });
     await successHeading.waitFor({ state: 'visible' });
     expect(await successHeading.isVisible()).toBeTruthy();
@@ -1044,7 +981,6 @@ test('pasting text with special characters preserves data integrity', async ({ p
 test('hidden fields remain hidden but (eventually) can be included in submitted data', async ({
   page,
 }) => {
-  // Step 0: login and prepare the form for testing
   const formName = `Hidden Fields Form ${Date.now()}`;
 
   await page.goto('http://localhost:4173/login');
@@ -1054,8 +990,6 @@ test('hidden fields remain hidden but (eventually) can be included in submitted 
 
   await page.getByRole('link', { name: 'Forms' }).click();
   await page.getByRole('button', { name: 'Create New Form' }).click();
-
-  // Add two text fields; we will hide the second one
   await page.getByTestId('palette-component-text').click();
   await page.getByRole('textbox', { name: 'Field label' }).fill('Visible Field');
 
@@ -1089,25 +1023,17 @@ test('hidden fields remain hidden but (eventually) can be included in submitted 
   const shareInput = shareLinkContainer.locator('input');
   await expect(shareInput).not.toBeEmpty();
   const publicUrl = await shareInput.inputValue();
-
-  // Step 1: navigate to the form URL using page.goto()
   await page.goto(publicUrl);
   await page.getByRole('heading', { name: formName }).waitFor({ state: 'visible' });
 
   const form = page.getByRole('form');
   const formChildrenCount = await form.locator('input').count();
   expect(formChildrenCount).toBe(1);
-
-  // Step 4: fill visible fields with test data
   const visibleInput = page.getByLabel('Visible Field');
   await visibleInput.fill('visible-value');
-
-  // Step 5: click the submit button
   const submitButton = page.getByRole('button', { name: /submit/i });
   await expect(submitButton).toBeVisible();
   await submitButton.click();
-
-  // Expect normal success behavior (toast or thank-you screen)
   const successToast = page.getByRole('alert', { name: 'toast-notification' });
   const toastVisible = await successToast.isVisible().catch(() => false);
   if (!toastVisible) {
@@ -1118,7 +1044,6 @@ test('hidden fields remain hidden but (eventually) can be included in submitted 
 });
 
 test('empty form with only submit/reset behaves correctly', async ({ page }) => {
-  // Step 0: login and prepare the form for testing
   const formName = `Empty Form ${Date.now()}`;
 
   await page.goto('http://localhost:4173/login');
@@ -1128,11 +1053,7 @@ test('empty form with only submit/reset behaves correctly', async ({ page }) => 
 
   await page.getByRole('link', { name: 'Forms' }).click();
   await page.getByRole('button', { name: 'Create New Form' }).click();
-
-  // Build a form with no input fields, only buttons
-  // (no text/number/select/textarea components)
   await page.getByTestId('palette-component-reset').click();
-  // Rely on the fallback submit button if you don't have an explicit submit component
 
   const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
   await titleInput.fill(formName);
