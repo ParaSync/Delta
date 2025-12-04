@@ -1117,72 +1117,31 @@ test('hidden fields remain hidden but (eventually) can be included in submitted 
   }
 });
 
-// clive ur tripping
-// test('empty form with only submit/reset behaves correctly', async ({ page }) => {
-//   // Step 0: login and prepare the form for testing
-//   const formName = `Empty Form ${Date.now()}`;
+test('empty form with only submit/reset behaves correctly', async ({ page }) => {
+  // Step 0: login and prepare the form for testing
+  const formName = `Empty Form ${Date.now()}`;
 
-//   await page.goto('http://localhost:4173/login');
-//   await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
-//   await page.getByRole('textbox', { name: 'Password' }).fill('password');
-//   await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('http://localhost:4173/login');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('example4@example.com');
+  await page.getByRole('textbox', { name: 'Password' }).fill('password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
 
-//   await page.getByRole('link', { name: 'Forms' }).click();
-//   await page.getByRole('button', { name: 'Create New Form' }).click();
+  await page.getByRole('link', { name: 'Forms' }).click();
+  await page.getByRole('button', { name: 'Create New Form' }).click();
 
-//   // Build a form with no input fields, only buttons
-//   // (no text/number/select/textarea components)
-//   await page.getByTestId('palette-component-reset').click();
-//   // Rely on the fallback submit button if you don't have an explicit submit component
+  // Build a form with no input fields, only buttons
+  // (no text/number/select/textarea components)
+  await page.getByTestId('palette-component-reset').click();
+  // Rely on the fallback submit button if you don't have an explicit submit component
 
-//   const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
-//   await titleInput.fill(formName);
-//   await titleInput.press('Enter');
+  const titleInput = page.getByRole('textbox', { name: 'Untitled Form' });
+  await titleInput.fill(formName);
+  await titleInput.press('Enter');
 
-//   await page.getByRole('button', { name: 'Save' }).click();
-//   await page.getByRole('link', { name: 'Forms' }).click();
-
-//   const formCard = page
-//     .locator('div.bg-card')
-//     .filter({ has: page.getByRole('heading', { name: formName, exact: true }) });
-
-//   await expect(formCard).toBeVisible({ timeout: 10000 });
-//   await formCard.getByRole('button', { name: 'Edit Form' }).click();
-
-//   await page.getByRole('button', { name: 'Publish' }).click();
-//   await page.getByRole('button', { name: 'Confirm Publish' }).click();
-
-//   const shareLinkContainer = page
-//     .locator('div')
-//     .filter({ has: page.getByRole('button', { name: 'Copy' }) })
-//     .last();
-
-//   const shareInput = shareLinkContainer.locator('input');
-//   await expect(shareInput).not.toBeEmpty();
-//   const publicUrl = await shareInput.inputValue();
-
-//   // Step 1: navigate to an empty form URL using page.goto()
-//   await page.goto(publicUrl);
-
-//   // Step 2: declare inputFields using input, select, textarea
-//   const inputFields = page.locator('input,select,textarea');
-
-//   // Step 3: verify there are no input fields
-//   await expect(inputFields).toHaveCount(0);
-
-//   // Step 4: declare submitButton
-//   const submitButton = page.getByRole('button', { name: /submit/i });
-//   await expect(submitButton).toBeVisible();
-
-//   // Step 5: click the submit button
-//   await submitButton.click();
-
-//   // Step 6: verify either a success message or appropriate handling message appears
-//   const successToast = page.getByRole('alert', { name: 'toast-notification' });
-//   const toastVisible = await successToast.isVisible().catch(() => false);
-//   if (!toastVisible) {
-//     const successHeading = page.getByRole('heading', { name: 'Thank you!' });
-//     await successHeading.waitFor({ state: 'visible' });
-//     expect(await successHeading.isVisible()).toBeTruthy();
-//   }
-// });
+  await page.getByRole('button', { name: 'Save' }).click();
+  const toast = page
+    .getByRole('alert', { name: 'toast-notification' })
+    .getByText('Your form must have at least one input component');
+  await toast.waitFor({ state: 'visible' });
+  expect(toast.isVisible()).toBeTruthy();
+});
