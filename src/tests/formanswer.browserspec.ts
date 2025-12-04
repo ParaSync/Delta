@@ -890,13 +890,11 @@ test('submitting form with no required fields behaves correctly', async ({ page 
   await submitButton.click();
 
   // Step 4: verify either a success toast appears OR an empty form message is displayed
-  const successToast = page.getByRole('alert', { name: 'toast-notification' });
   const emptyMessage = page.getByText(/empty form|no responses|no data|submission error/i, {
     exact: false,
   });
-  const toastVisible = await successToast.isVisible().catch(() => false);
-  const emptyVisible = await emptyMessage.isVisible().catch(() => false);
-  expect(toastVisible || emptyVisible).toBeTruthy();
+  await emptyMessage.waitFor({ state: 'visible', timeout: 5000 });
+  expect(emptyMessage).toBeVisible();
 });
 
 test('very long text input is handled and preserved', async ({ page }) => {
